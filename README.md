@@ -1,5 +1,5 @@
 ---
-title: ContentAI
+title: Quillr
 emoji: ✍️
 colorFrom: indigo
 colorTo: blue
@@ -8,22 +8,54 @@ app_port: 7860
 pinned: true
 ---
 
-# ✍️ ContentAI — AI Blogging, Fully Automated
+# ✍️ Quillr — AI Blog Writing, Fully Automated
 
-> A full-stack AI content management platform. Drop a topic, watch 7 agents research, write, evaluate quality, generate charts, and produce a publish-ready blog post — then ship it to 4 platforms.
+> A full-stack AI content platform. Drop a topic, watch 7 agents research, write, evaluate quality, generate charts, and produce a publish-ready blog post — then ship it to 4 platforms in one click.
 
-![ContentAI Home](screenshots/contentai_home.png)
+![Quillr Home](screenshots/home.png)
 
 ## Live Demo
 
-[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20HF%20Spaces-Live%20Demo-yellow)](https://huggingface.co/spaces/ankitsharma6652/contentai)
+[![Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?logo=render)](https://quillr.onrender.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Source%20Code-black?logo=github)](https://github.com/ankitsharma6652/contentai)
+
+---
+
+## Demo Video
+
+https://github.com/user-attachments/assets/demo.mp4
+
+> Full end-to-end walkthrough: topic input → 7-phase pipeline → quality scoring → editor → publish
+
+---
+
+## Screenshots
+
+### Home — Enter your topic and configure the AI
+
+![Quillr Home](screenshots/home.png)
+
+### AI Writing in Progress
+
+![Generating](screenshots/generating.png)
+
+### Pipeline Status — Real-time phase-by-phase tracking
+
+![Pipeline Tab](screenshots/pipeline_tab.png)
+
+### Editor — Full markdown editor with live preview and SEO sidebar
+
+![Editor](screenshots/editor.png)
+
+### Architecture — Multi-phase pipeline diagram
+
+![Architecture](screenshots/architecture.png)
 
 ---
 
 ## What it does
 
-ContentAI runs a **7-phase agentic pipeline** that takes a topic from input to published blog post with zero manual writing:
+Quillr runs a **7-phase agentic pipeline** that takes a topic from input to published blog post with zero manual writing:
 
 ```
 Phase 1 — Research       Parallel Tavily web queries (asyncio.gather)
@@ -34,8 +66,6 @@ Phase 5 — Charts         Detect numeric data → inject Mermaid xychart-beta b
 Phase 6 — Visuals        Pollinations.ai AI cover image + section images (free)
 Phase 7 — SEO            Title · meta description · tags · slug · reading time
 ```
-
-![ContentAI Pipeline](screenshots/contentai_pipeline.png)
 
 ---
 
@@ -85,17 +115,16 @@ Gemini · Groq · NVIDIA NIM · OpenAI · Anthropic Claude · Meta Llama · Qwen
 | AI images | Pollinations.ai (free) |
 | Frontend | Vanilla JS — no framework |
 | Publish | dev.to v1 · Hashnode GraphQL · LinkedIn UGC v2 · Medium |
+| Hosting | Render (free, keep-alive) |
 
 ---
 
 ## Environment Variables
 
-Set these as **HF Spaces Secrets** (Settings → Variables and secrets):
-
 | Variable | Required | Where to get it |
 |---|---|---|
 | `DATABASE_URL` | ✅ | [neon.tech](https://neon.tech) → Connection String |
-| `FERNET_KEY` | ✅ | Run `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `FERNET_KEY` | ✅ | `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
 | `GOOGLE_CLIENT_ID` | ✅ | [Google Cloud Console](https://console.cloud.google.com) → OAuth 2.0 |
 | `GOOGLE_CLIENT_SECRET` | ✅ | Same as above |
 | `CONTENT_SECRET_KEY` | ✅ | Any random string (JWT signing) |
@@ -103,7 +132,7 @@ Set these as **HF Spaces Secrets** (Settings → Variables and secrets):
 | `TAVILY_API_KEY` | ✅ | [tavily.com](https://tavily.com) |
 | `GROQ_API_KEY` | optional | [console.groq.com](https://console.groq.com) |
 
-> **Google OAuth redirect URI**: Add `https://ankitsharma6652-contentai.hf.space/auth/google/callback` in Google Cloud Console → OAuth → Authorized redirect URIs.
+> **Google OAuth redirect URI**: Add `https://your-render-url.onrender.com/auth/google/callback` in Google Cloud Console → OAuth → Authorized redirect URIs.
 
 ---
 
