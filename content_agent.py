@@ -23,7 +23,6 @@ from typing import Callable, Awaitable, Optional, List
 from langchain_core.messages import HumanMessage, SystemMessage
 
 sys.path.insert(0, str(Path(__file__).parent))
-from agent import get_llm
 
 
 # ── Resilient LLM: Groq → NVIDIA → Gemini fallback chain ─────────────────────
@@ -58,7 +57,30 @@ def _try_build_llm(provider: str, model: Optional[str], api_base: Optional[str] 
             raise ValueError("EURON_API_KEY not set")
         return ChatOpenAI(model=model or "gemini-3.5-flash",
                           temperature=0, api_key=key, base_url=_EURON_BASE_URL)
-    return get_llm(provider, model, api_base=api_base)
+    if provider == "groq":
+        from langchain_groq import ChatGroq
+        key = os.getenv("GROQ_API_KEY")
+        if not key:
+            raise ValueError("GROQ_API_KEY not set")
+        return ChatGroq(model=model or "llama-3.3-70b-versatile", temperature=0, api_key=key)
+    elif provider == "gemini":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            raise ValueError("GEMINI_API_KEY not set")
+        return ChatGoogleGenerativeAI(model=model or "gemini-2.0-flash", temperature=0, google_api_key=key)
+    elif provider in ("openai", "openai-compatible"):
+        from langchain_openai import ChatOpenAI
+        key = os.getenv("OPENAI_API_KEY", "")
+        if not key:
+            raise ValueError("OPENAI_API_KEY not set")
+        kwargs = dict(model=model or "gpt-4o-mini", temperature=0, api_key=key)
+        base = api_base or os.getenv("OPENAI_API_BASE")
+        if base:
+            kwargs["base_url"] = base
+        return ChatOpenAI(**kwargs)
+    else:
+        raise ValueError(f"Unknown provider: {provider}")
 
 
 class _LLMFallbackChain:
