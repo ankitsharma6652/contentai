@@ -33,23 +33,23 @@ https://github.com/user-attachments/assets/demo.mp4
 
 ### Home — Enter your topic and configure the AI
 
-![Quillr Home](screenshots/home.png)
+![Quillr Home](screenshots/live_home.png)
 
-### AI Writing in Progress
+### Settings — Model selection, API keys, publishing connections
 
-![Generating](screenshots/generating.png)
+![Settings](screenshots/live_settings.png)
 
-### Pipeline Status — Real-time phase-by-phase tracking
+### Pipeline — 7-agent pipeline, real-time phase tracking
 
-![Pipeline Tab](screenshots/pipeline_tab.png)
+![Pipeline](screenshots/live_pipeline.png)
 
-### Editor — Full markdown editor with live preview and SEO sidebar
+### Architecture — How the multi-agent system works internally
 
-![Editor](screenshots/editor.png)
+![Architecture](screenshots/live_architecture.png)
 
-### Architecture — Multi-phase pipeline diagram
+### History — Every draft auto-saved, filterable by platform
 
-![Architecture](screenshots/architecture.png)
+![History](screenshots/live_history.png)
 
 ---
 
