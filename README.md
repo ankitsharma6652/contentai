@@ -19,6 +19,8 @@ pinned: true
 [![Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?logo=render)](https://contentai-utna.onrender.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Source%20Code-black?logo=github)](https://github.com/ankitsharma6652/contentai)
 
+🔗 **Live App:** https://contentai-utna.onrender.com
+
 ---
 
 ## Demo Video
