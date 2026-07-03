@@ -766,11 +766,13 @@ async def _publish_linkedin(req: PublishReq, key: str) -> dict:
         ))])
         linkedin_text = _md_to_linkedin_text(
             raw.content if hasattr(raw, "content") else str(raw)
-        )[:3000]
+        )[:2900]
     except Exception:
         plain = re.sub(r"[#*`!\[\]()>]", "", req.markdown[:2000]).strip()
         tags_str = " ".join(f"#{t}" for t in req.tags[:5]) if req.tags else ""
-        linkedin_text = f"{req.title}\n\n{plain[:1800]}\n\n{tags_str}"[:3000]
+        linkedin_text = f"{req.title}\n\n{plain[:1800]}\n\n{tags_str}"[:2900]
+
+    linkedin_text += "\n\n✍️ Generated and published by Quillr — AI blog writing, fully automated.\nhttps://contentai-utna.onrender.com"
 
     author_urn = author if author.startswith("urn:") else f"urn:li:person:{author}"
 
