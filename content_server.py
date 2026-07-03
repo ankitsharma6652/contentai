@@ -483,11 +483,13 @@ def _replace_mermaid_blocks(markdown: str) -> str:
     return re.sub(r"```mermaid\s*\n([\s\S]*?)```", _replace, markdown, flags=re.IGNORECASE)
 
 
+_ATTRIBUTION = "\n\n---\n*✍️ Generated and published by [Quillr](https://contentai-utna.onrender.com) — AI blog writing, fully automated.*"
+
 def _publish_devto(req: PublishReq, key: str) -> dict:
     tags = [re.sub(r"[^a-z0-9]", "", t.lower()) for t in req.tags]
     tags = [t for t in tags if t][:4]
     # dev.to doesn't render Mermaid — convert diagrams to images first
-    markdown = _replace_mermaid_blocks(req.markdown)
+    markdown = _replace_mermaid_blocks(req.markdown) + _ATTRIBUTION
     body: dict = {"article": {"title": req.title, "body_markdown": markdown,
                                "published": True, "tags": tags}}
     if req.cover_image:
@@ -520,7 +522,7 @@ def _publish_hashnode(req: PublishReq, key: str) -> dict:
     }"""
     inp: dict = {
         "title": req.title,
-        "contentMarkdown": req.markdown,
+        "contentMarkdown": req.markdown + _ATTRIBUTION,
         "publicationId": pub_id,
         "tags": [],
     }
@@ -865,7 +867,7 @@ def _publish_medium(req: PublishReq, key: str) -> dict:
     body: dict = {
         "title":         req.title,
         "contentFormat": "markdown",
-        "content":       req.markdown,
+        "content":       req.markdown + _ATTRIBUTION,
         "tags":          tags,
         "publishStatus": "public",
     }

@@ -16,7 +16,7 @@ pinned: true
 
 ## Live Demo
 
-[![Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?logo=render)](https://quillr.onrender.com)
+[![Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?logo=render)](https://contentai-utna.onrender.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Source%20Code-black?logo=github)](https://github.com/ankitsharma6652/contentai)
 
 ---
