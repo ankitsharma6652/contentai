@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ContentAI — Blog & Content Manager</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235b4ef8'/%3E%3Cpath d='M16 7 L21 13 L19 13 L19 22 L13 22 L13 13 L11 13 Z' fill='white' opacity='0.95'/%3E%3Ccircle cx='16' cy='24.5' r='1.5' fill='white' opacity='0.8'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:   #0a0b0f;
+  --s1:   #111318;
+  --s2:   #16181f;
+  --s3:   #1c1f28;
+  --b1:   #252830;
+  --b2:   #32374a;
+  --blue: #5b8af5;
+  --blg:  rgba(91,138,245,.12);
+  --bbd:  rgba(91,138,245,.3);
+  --violet:#8b6cf7;
+  --vlg:  rgba(139,108,247,.12);
+  --cyan: #22d3ee;
+  --clg:  rgba(34,211,238,.1);
+  --amber:#f59e0b;
+  --alg:  rgba(245,158,11,.1);
+  --red:  #f87171;
+  --rose: #fb7185;
+  --t1:   #eef0f8;
+  --t2:   #8b91a8;
+  --t3:   #454c64;
+  --mono: 'JetBrains Mono',monospace;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+
+/* ── TOPBAR ─────────────────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:0;height:52px;background:rgba(10,11,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:300;flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:9px;padding:0 20px;font-size:14px;font-weight:800;letter-spacing:-.3px;color:var(--t1);border-right:1px solid var(--b1);height:100%}
+.tb-logo-ico{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--blue),var(--violet));display:flex;align-items:center;justify-content:center;font-size:14px}
+.tb-nav{display:flex;align-items:center;height:100%;flex:1;padding:0 8px;gap:1px}
+.tb-tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tb-tab:hover{color:var(--t2)}
+.tb-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.tb-tab.ready{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tb-tab .badge{background:var(--blue);color:#fff;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:800}
+.tb-right{display:flex;align-items:center;gap:8px;padding:0 16px;border-left:1px solid var(--b1);height:100%;margin-left:auto}
+.tb-btn{background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.tb-btn:hover{border-color:var(--b2);color:var(--t1)}
+.tb-btn.primary{background:var(--blue);border-color:transparent;color:#fff}
+.tb-btn.primary:hover{opacity:.88}
+.user-chip{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:3px 12px 3px 3px;cursor:pointer;transition:border-color .15s}
+.user-chip:hover{border-color:var(--b2)}
+.user-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover}
+.user-name{font-size:11px;font-weight:600;color:var(--t2)}
+.google-btn{display:flex;align-items:center;gap:7px;background:#fff;border:none;border-radius:7px;padding:6px 13px;font-size:11px;font-weight:700;color:#374151;cursor:pointer;transition:opacity .15s}
+.google-btn:hover{opacity:.9}
+.google-btn svg{width:13px;height:13px;flex-shrink:0}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────── */
+.layout{flex:1;display:flex;overflow:hidden}
+
+/* ── LEFT SIDEBAR ───────────────────────────────────────────────────── */
+.sidebar{width:260px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow-y:auto}
+.sb-section{padding:16px 14px 8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+.sb-field{padding:0 14px 10px}
+.sb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px}
+textarea.sb-input,input.sb-input,select.sb-input{width:100%;background:var(--bg);border:1px solid var(--b1);color:var(--t1);border-radius:7px;font-size:12px;font-family:inherit;padding:8px 10px;transition:border-color .2s;appearance:none}
+textarea.sb-input{resize:none;line-height:1.55}
+textarea.sb-input:focus,input.sb-input:focus,select.sb-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blg)}
+select.sb-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23454c64'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;cursor:pointer}
+option{background:#111318}
+.sb-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 10px}
+.sb-chip{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.sb-chip:hover{color:var(--t1);border-color:var(--b2)}
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 14px 10px}
+.sg-item{background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 8px;text-align:center;font-size:10px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.sg-item:hover{color:var(--t1)}
+.sg-item.on{border-color:var(--blue);color:var(--blue);background:var(--blg)}
+.sb-divider{height:1px;background:var(--b1);margin:6px 14px 12px}
+.gen-btn{margin:0 14px 14px;padding:11px;background:linear-gradient(135deg,var(--blue),var(--violet));border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .2s,transform .1s;width:calc(100% - 28px)}
+.gen-btn:hover{opacity:.88;transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.mic-row{display:flex;align-items:center;gap:6px;padding:0 14px 10px}
+.mic-btn{width:30px;height:30px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .15s;flex-shrink:0}
+.mic-btn:hover{border-color:var(--blue)}
+.mic-btn.listening{border-color:var(--red);background:rgba(248,113,113,.1);animation:mic-pulse 1.2s ease-in-out infinite}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,.4)}50%{box-shadow:0 0 0 7px rgba(248,113,113,0)}}
+.char-count{font-size:9px;color:var(--t3);margin-left:auto}
+/* cover image section */
+.img-choice-row{display:flex;gap:5px;padding:0 14px 8px}
+.img-choice{flex:1;padding:6px;background:var(--s2);border:1px solid var(--b1);border-radius:6px;font-size:10px;font-weight:600;color:var(--t2);cursor:pointer;text-align:center;transition:all .15s}
+.img-choice.on{border-color:var(--blue);color:var(--blue);background:var(--blg)}
+.upload-zone{margin:0 14px 10px;border:2px dashed var(--b2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:var(--blg)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-body{pointer-events:none}
+.uz-ico{font-size:20px;display:block;margin-bottom:4px}
+.uz-txt{font-size:10px;color:var(--t2);font-weight:600}
+.uz-sub{font-size:9px;color:var(--t3);margin-top:2px}
+.upload-thumb{width:100%;height:60px;object-fit:cover;border-radius:5px;margin-top:6px;display:block}
+.upload-status{font-size:9px;color:var(--t3);padding:2px 14px 8px;line-height:1.5}
+
+/* ── MAIN CONTENT AREA ──────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* status bar */
+.status-bar{display:flex;align-items:center;gap:6px;padding:0 16px;height:36px;background:var(--s1);border-bottom:1px solid var(--b1);font-size:11px;color:var(--t3);flex-shrink:0}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.sb-dot.green{background:#22c55e;animation:blink 2s infinite}
+.sb-dot.amber{background:var(--amber)}
+.sb-dot.red{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-sep{width:1px;height:14px;background:var(--b1);margin:0 4px}
+.sb-spacer{flex:1}
+
+/* view panes */
+.view-pane{display:none;flex:1;overflow:hidden;flex-direction:column}
+.view-pane.on{display:flex}
+
+/* ── PIPELINE VIEW ──────────────────────────────────────────────────── */
+.pipe-wrap{flex:1;overflow-y:auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+.phase-card{background:var(--s1);border:1px solid var(--b1);border-radius:10px;overflow:hidden;transition:border-color .35s,box-shadow .35s;position:relative}
+.phase-card.active{border-color:rgba(91,138,245,.6);box-shadow:0 0 24px rgba(91,138,245,.12);animation:pglow .35s linear infinite alternate}
+@keyframes pglow{from{box-shadow:0 0 12px rgba(91,138,245,.08)}to{box-shadow:0 0 28px rgba(91,138,245,.22)}}
+.phase-card.done{border-color:rgba(91,138,245,.2)}
+.pc-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2)}
+.pc-left{display:flex;align-items:center;gap:8px}
+.pc-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;background:var(--b1);border:1px solid var(--b2);color:var(--t3);transition:all .3s;flex-shrink:0}
+.phase-card.active .pc-num,.phase-card.done .pc-num{background:var(--blg);border-color:var(--blue);color:var(--blue)}
+.pc-name{font-size:11px;font-weight:700;color:var(--t2);transition:color .3s}
+.phase-card.active .pc-name,.phase-card.done .pc-name{color:var(--blue)}
+.pc-status{font-size:9px;font-weight:600;color:var(--t3)}
+.phase-card.done .pc-status{color:var(--blue)}
+.pc-spin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(91,138,245,.2);border-top-color:var(--blue);animation:spin .7s linear infinite;display:none}
+.phase-card.active .pc-spin{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pc-body{padding:7px 12px;background:var(--bg);font-size:10px;color:var(--t3);min-height:32px}
+.phase-card.active .pc-body{color:var(--t2)}
+.pipe-log-wrap{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 16px;background:var(--s1)}
+.pipe-log{font-family:var(--mono);font-size:10px;color:var(--t3);max-height:80px;overflow-y:auto;line-height:1.8}
+.ll{display:flex;gap:8px}
+.lt{color:var(--t3);flex-shrink:0}
+.lm{color:var(--t2)}
+.lm.hi{color:var(--blue)}
+.pipe-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
+.pipe-head h3{font-size:13px;font-weight:700}
+.pipe-badge{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid var(--b1);background:var(--s2);color:var(--t3);transition:all .3s}
+.pipe-badge.running{border-color:rgba(91,138,245,.4);background:var(--blg);color:var(--blue)}
+.pipe-badge.done{border-color:rgba(34,211,238,.3);background:var(--clg);color:var(--cyan)}
+.pipe-badge.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--red)}
+
+/* ── EDITOR / PREVIEW VIEW ──────────────────────────────────────────── */
+.editor-toolbar{display:flex;align-items:center;gap:0;height:40px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;padding:0 12px}
+.et-tab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.et-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.et-sep{width:1px;height:16px;background:var(--b1);margin:0 8px}
+.et-info{font-size:10px;color:var(--t3);margin-left:auto;display:flex;align-items:center;gap:12px}
+.et-wc{font-size:10px;color:var(--t3)}
+.editor-body{flex:1;display:flex;overflow:hidden}
+.editor-pane{flex:1;display:none;flex-direction:column;overflow:hidden;border-right:1px solid var(--b1)}
+.editor-pane.on{display:flex}
+.md-editor{flex:1;width:100%;background:var(--bg);border:none;color:var(--t1);font-family:var(--mono);font-size:13px;line-height:1.75;padding:22px 24px;resize:none;outline:none}
+.preview-pane{flex:1;overflow-y:auto;padding:28px 36px;background:var(--bg);display:none}
+.preview-pane.on{display:block}
+
+/* preview empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--t3);text-align:center;gap:12px;padding:40px}
+.empty-ico{font-size:52px;opacity:.15}
+
+/* error box */
+.err-box{display:none;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--red);line-height:1.6;margin:16px;flex-shrink:0}
+.err-box.show{display:block}
+
+/* blog preview typography */
+.blog-preview{max-width:740px;margin:0 auto}
+.blog-preview h1{font-size:26px;font-weight:900;color:#eef0f8;margin-bottom:20px;letter-spacing:-.5px;line-height:1.2}
+.blog-preview h2{font-size:19px;font-weight:800;color:#dde6ff;margin:34px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--b1)}
+.blog-preview h3{font-size:15px;font-weight:700;color:var(--t2);margin:22px 0 8px}
+.blog-preview p{font-size:15px;line-height:1.85;color:#a0aec8;margin-bottom:14px}
+.blog-preview strong{color:#e2eeff;font-weight:700}
+.blog-preview em{color:#b0c4e8;font-style:italic}
+.blog-preview ul,.blog-preview ol{padding-left:24px;margin-bottom:14px}
+.blog-preview li{font-size:15px;line-height:1.75;color:#a0aec8;margin-bottom:6px}
+.blog-preview a{color:var(--blue);text-decoration:none}
+.blog-preview a:hover{text-decoration:underline}
+.blog-preview blockquote{border-left:3px solid var(--violet);background:var(--s2);padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0;font-size:14px;color:var(--t2);font-style:italic}
+.blog-preview hr{border:none;border-top:1px solid var(--b1);margin:28px 0}
+.blog-preview table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13px}
+.blog-preview th{background:var(--s2);color:var(--t2);font-weight:700;padding:10px 14px;border:1px solid var(--b1);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+.blog-preview td{padding:10px 14px;border:1px solid var(--b1);color:#a0aec8}
+.blog-preview tr:hover td{background:rgba(255,255,255,.02)}
+.blog-preview code{font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--b1);padding:2px 6px;border-radius:4px;color:var(--violet)}
+.blog-preview pre{background:#0d1117;border:1px solid var(--b1);border-radius:10px;margin:16px 0;overflow:hidden}
+.blog-preview pre code{background:none;border:none;padding:0;color:inherit}
+.blog-preview .hljs{padding:18px 20px;background:#0d1117}
+.blog-preview img{max-width:100%;border-radius:8px;margin:14px 0;display:block}
+.blog-preview .mermaid{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:20px;margin:18px 0;text-align:center}
+.cover-img{width:100%;max-height:280px;object-fit:cover;border-radius:10px;margin-bottom:22px;display:block}
+
+/* action toolbar for preview */
+.preview-toolbar{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid var(--b1);background:var(--s1);flex-shrink:0}
+.pt-btn{display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--b1);color:var(--t2);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.pt-btn:hover{border-color:var(--b2);color:var(--t1)}
+.pt-btn.pub{background:linear-gradient(135deg,var(--blue),var(--violet));border:none;color:#fff;font-weight:700}
+.pt-btn.pub:hover{opacity:.88}
+
+/* ── QUALITY / HITL PANEL ───────────────────────────────────────────── */
+.quality-panel{display:none;padding:16px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0}
+.quality-panel.show{display:block}
+.qp-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.qp-title{font-size:12px;font-weight:800;color:var(--t1)}
+.qp-score{font-size:22px;font-weight:900}
+.qp-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid;margin-left:auto}
+.qp-sections{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.qs-row{background:var(--bg);border:1px solid var(--b1);border-radius:7px;padding:8px 10px}
+.qs-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.qs-name{font-size:10px;font-weight:600;color:var(--t1)}
+.qs-avg{font-size:11px;font-weight:800}
+.qs-bar-bg{height:2px;background:var(--b1);border-radius:2px;margin-bottom:4px}
+.qs-bar{height:2px;border-radius:2px}
+.qs-meta{display:flex;gap:10px;font-size:9px;color:var(--t3)}
+.qs-issue{color:var(--amber);font-size:9px;margin-top:3px}
+/* refine box */
+.refine-box{background:var(--bg);border:1px solid var(--b1);border-radius:8px;padding:12px}
+.refine-box label{font-size:10px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px}
+.refine-box textarea{width:100%;background:var(--s1);border:1px solid var(--b1);color:var(--t1);border-radius:6px;font-size:12px;font-family:inherit;padding:9px 10px;resize:none;height:68px;line-height:1.5;transition:border-color .2s}
+.refine-box textarea:focus{outline:none;border-color:var(--blue)}
+.refine-actions{display:flex;gap:6px;margin-top:8px}
+.ra-btn{flex:1;padding:8px;border:none;border-radius:7px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .2s}
+.ra-btn.refine{background:linear-gradient(135deg,#6d28d9,var(--violet));color:#fff}
+.ra-btn.approve{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff}
+.ra-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── HISTORY VIEW ───────────────────────────────────────────────────── */
+.hist-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.hist-toolbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0}
+.hist-toolbar h3{font-size:13px;font-weight:700}
+.hist-search{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--b1);border-radius:7px;padding:5px 9px;margin-left:auto}
+.hist-search input{background:none;border:none;color:var(--t1);font-size:11px;outline:none;width:160px}
+.hist-filters{display:flex;gap:5px;padding:10px 16px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;flex-wrap:wrap}
+.hf{background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.hf.on{border-color:var(--blue);color:var(--blue);background:var(--blg)}
+.hist-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start}
+.hist-card{background:var(--s1);border:1px solid var(--b1);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;position:relative}
+.hist-card:hover{border-color:var(--b2)}
+.hist-cover{width:100%;height:100px;object-fit:cover;display:block}
+.hist-cover-ph{width:100%;height:100px;background:linear-gradient(135deg,var(--s2),var(--s3));display:flex;align-items:center;justify-content:center;font-size:30px;opacity:.3}
+.hc-body{padding:10px 12px}
+.hc-title{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.hc-meta{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t3);flex-wrap:wrap}
+.hc-plat{display:inline-flex;align-items:center;border:1px solid var(--b2);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:700;color:var(--t2)}
+.hc-plat.draft{border-color:rgba(245,158,11,.4);color:var(--amber)}
+.hc-plat.devto{border-color:rgba(91,138,245,.4);color:var(--blue)}
+.hc-plat.hashnode{border-color:rgba(139,108,247,.4);color:var(--violet)}
+.hc-plat.linkedin{border-color:rgba(34,211,238,.3);color:var(--cyan)}
+.hc-plat.medium{border-color:rgba(248,113,113,.3);color:var(--rose)}
+.hc-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--red);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s}
+.hist-card:hover .hc-del{opacity:1}
+.hist-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--t3);text-align:center;gap:10px}
+
+/* ── SEO SIDEBAR (right panel in editor view) ───────────────────────── */
+.seo-sidebar{width:220px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--b1);overflow-y:auto;padding:14px}
+.ss-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:6px}
+.ss-val{font-size:11px;color:var(--t1);font-weight:600;margin-bottom:10px;line-height:1.5;word-break:break-all}
+.ss-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.ss-tag{background:var(--blg);border:1px solid var(--bbd);color:var(--blue);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.ss-divider{height:1px;background:var(--b1);margin:10px 0}
+.ss-score{font-size:24px;font-weight:900;color:var(--blue)}
+.ss-score-label{font-size:10px;color:var(--t3);margin-bottom:6px}
+
+/* ── SETTINGS MODAL ─────────────────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:24px 26px;width:500px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+.modal h2{font-size:14px;font-weight:800;margin-bottom:18px}
+.mclose{position:absolute;top:14px;right:14px;background:var(--s2);border:1px solid var(--b1);border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:13px;transition:all .15s}
+.mclose:hover{color:var(--t1)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.full{grid-column:1/-1}
+.mfield{display:flex;flex-direction:column;gap:4px}
+.mfield label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
+.fw{position:relative}
+.fi{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none}
+.fw input,.fw select{padding-left:28px}
+input,select{width:100%;background:var(--bg);border:1px solid var(--b1);color:var(--t1);border-radius:7px;font-size:12px;font-family:inherit;appearance:none;padding:8px 10px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blg)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23454c64'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;cursor:pointer}
+option{background:#111318}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;padding:3px}
+.save-btn{padding:9px 20px;background:var(--blue);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .2s}
+.save-btn:hover{opacity:.85}
+.auth-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;margin-bottom:14px;font-size:12px}
+
+/* ── PUBLISH MODAL ──────────────────────────────────────────────────── */
+.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px}
+.plat-card{background:var(--s2);border:2px solid var(--b1);border-radius:9px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+.plat-card:hover{border-color:var(--b2)}
+.plat-card.selected{border-color:var(--blue);background:var(--blg)}
+.plat-icon{font-size:20px;margin-bottom:4px}
+.plat-name{font-size:11px;font-weight:700}
+.plat-desc{font-size:9px;color:var(--t3);margin-top:2px}
+.pub-status{display:none;padding:10px 12px;border-radius:7px;font-size:12px;font-weight:600;margin-bottom:10px}
+.pub-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--blue),var(--violet));border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .2s}
+.pub-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── MISC ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+.toast{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:10px 16px;font-size:12px;font-weight:600;color:var(--t1);box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(50px);opacity:0;transition:transform .25s,opacity .25s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── LANDING / HOME (inspired by ResearchAI) ────────────────────────── */
+.home{flex:1;overflow-y:auto;display:none;flex-direction:column;align-items:center}
+.home.on{display:flex}
+.hero{position:relative;text-align:center;padding:56px 24px 26px;width:100%;max-width:820px}
+.hero-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:540px;height:300px;background:radial-gradient(ellipse at center,rgba(91,138,245,.18),transparent 70%);pointer-events:none;z-index:0}
+.hero-tag{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:20px}
+.hero-tag .live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:blink 2s infinite}
+.hero h1{position:relative;z-index:1;font-size:46px;font-weight:900;letter-spacing:-1.5px;line-height:1.05;margin-bottom:16px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{position:relative;z-index:1;font-size:15px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.7}
+.mstrip{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:6px 24px 24px;width:100%;max-width:760px}
+.msc{flex:1;min-width:130px;background:var(--s1);border:1px solid var(--b1);border-radius:11px;padding:14px;text-align:center}
+.msv{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.msl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.home-wrap{width:100%;max-width:760px;padding:0 24px 56px}
+.home-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;box-shadow:0 16px 50px rgba(0,0,0,.35)}
+.hc-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin:0 0 9px}
+.home-topic-wrap{position:relative}
+.home-topic{width:100%;background:var(--bg);border:1px solid var(--b1);border-radius:11px;color:var(--t1);font-family:inherit;font-size:15px;line-height:1.6;padding:16px 52px 16px 16px;resize:none;transition:border-color .2s}
+.home-topic:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blg)}
+.home-mic{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
+.home-mic:hover{border-color:var(--blue)}
+.home-mic.listening{border-color:var(--red);background:rgba(248,113,113,.1);animation:mic-pulse 1.2s ease-in-out infinite}
+.home-topic-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;flex-wrap:wrap;gap:8px}
+.home-chips{display:flex;flex-wrap:wrap;gap:6px}
+.home-chip{background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.home-chip:hover{color:var(--t1);border-color:var(--b2)}
+.home-divider{height:1px;background:var(--b1);margin:20px 0}
+.home-style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.home-sg{background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:10px 8px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.home-sg:hover{color:var(--t1)}
+.home-sg.on{border-color:var(--blue);color:var(--blue);background:var(--blg)}
+.home-img-row{display:flex;gap:7px;max-width:280px}
+.home-img-choice{flex:1;padding:9px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;text-align:center;transition:all .15s}
+.home-img-choice.on{border-color:var(--blue);color:var(--blue);background:var(--blg)}
+.home-upload{margin-top:10px;border:2px dashed var(--b2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+.home-upload:hover,.home-upload.drag{border-color:var(--blue);background:var(--blg)}
+.home-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.home-gen{margin-top:22px;width:100%;padding:15px;background:linear-gradient(135deg,var(--blue),var(--violet));border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity .2s,transform .1s}
+.home-gen:hover{opacity:.9;transform:translateY(-1px)}
+.home-gen:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.home-foot{text-align:center;font-size:11px;color:var(--t3);padding:0 24px 30px}
+
+/* pipeline-running banner */
+.pipe-banner{display:none;align-items:center;gap:12px;width:100%;max-width:760px;margin:0 24px 18px;padding:14px 18px;background:rgba(91,138,245,.1);border:1px solid rgba(91,138,245,.4);border-radius:11px;cursor:pointer;transition:background .2s}
+.pipe-banner:hover{background:rgba(91,138,245,.18)}
+.pipe-banner.on{display:flex}
+.pipe-banner-dot{width:10px;height:10px;border-radius:50%;background:var(--blue);flex-shrink:0;animation:blink 1.2s infinite}
+.pipe-banner-text{flex:1;font-size:13px;font-weight:700;color:var(--blue)}
+.pipe-banner-sub{font-size:11px;color:var(--t2);font-weight:400;display:block;margin-top:1px}
+.pipe-banner-arrow{font-size:16px;color:var(--blue)}
+
+/* home history strip */
+.home-history{width:100%;max-width:760px;padding:0 24px 24px}
+.home-history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.home-history-head h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+.home-history-head button{background:none;border:none;color:var(--blue);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.home-hist-row{display:flex;flex-direction:column;gap:7px}
+.home-hist-btn{display:flex;align-items:center;gap:12px;width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;font-family:inherit;color:var(--t1)}
+.home-hist-btn:hover{border-color:var(--blue);background:var(--blg)}
+.home-hist-ico{width:36px;height:36px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden}
+.home-hist-ico img{width:36px;height:36px;object-fit:cover;border-radius:7px}
+.home-hist-body{flex:1;min-width:0}
+.home-hist-title{font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-hist-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.home-hist-arrow{font-size:14px;color:var(--t3);flex-shrink:0}
+.home-hist-plat{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;margin-right:5px}
+.home-hist-plat.draft{background:var(--s2);color:var(--t3)}
+.home-hist-plat.devto{background:rgba(91,138,245,.12);color:var(--blue)}
+.home-hist-plat.hashnode{background:rgba(139,108,247,.12);color:var(--violet)}
+.home-hist-plat.linkedin{background:rgba(34,211,238,.1);color:var(--cyan)}
+.home-hist-plat.medium{background:rgba(245,158,11,.1);color:var(--amber)}
+.home-hist-empty{font-size:12px;color:var(--t3);padding:8px 0}
+
+/* ── ARCHITECTURE VIEW ──────────────────────────────────────────────── */
+.arch-wrap{flex:1;overflow-y:auto;padding:28px 32px}
+.arch-head{max-width:1000px;margin:0 auto 22px}
+.arch-head h3{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.arch-head p{font-size:13px;color:var(--t2);margin-top:6px;line-height:1.6;max-width:680px}
+.arch-diagram{max-width:1000px;margin:0 auto 28px;background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:22px;overflow-x:auto}
+.arch-diagram .mermaid{display:flex;justify-content:center}
+.arch-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.arch-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;transition:border-color .2s}
+.arch-card:hover{border-color:var(--b2)}
+.arch-card .ac-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blg);color:var(--blue);font-size:11px;font-weight:800;margin-bottom:9px}
+.arch-card .ac-name{font-size:14px;font-weight:700;margin-bottom:5px}
+.arch-card .ac-desc{font-size:12px;color:var(--t2);line-height:1.6}
+.arch-card .ac-tag{display:inline-block;margin-top:9px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--violet);background:var(--vlg);border-radius:5px;padding:2px 7px}
+
+/* ── PUBLISH CONNECTIONS ────────────────────────────────────────────── */
+.conn-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px;margin-left:8px}
+.conn-badge.yes{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.conn-badge.no{background:var(--s2);color:var(--t3);border:1px solid var(--b1)}
+.settings-subhead{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--t2);margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.settings-subhead::after{content:'';flex:1;height:1px;background:var(--b1)}
+.conn-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.conn-row label{font-size:11px;font-weight:600;color:var(--t2)}
+.pub-connected{display:flex;align-items:center;gap:8px;padding:11px 13px;border-radius:8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#22c55e;font-size:12px;font-weight:600;margin-bottom:12px}
+.pub-link{background:none;border:none;color:var(--blue);font-size:11px;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;padding:0}
+
+/* ── LINKEDIN PREVIEW ───────────────────────────────────────────────── */
+.li-preview{display:none;flex-direction:column;gap:12px;margin-bottom:14px}
+.li-preview.on{display:flex}
+.li-mock{background:#fff;border-radius:10px;padding:16px;color:#1a1a1a;font-family:'Inter',sans-serif}
+.li-mock-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.li-mock-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#0077b5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:800;flex-shrink:0}
+.li-mock-name{font-size:13px;font-weight:700;color:#1a1a1a}
+.li-mock-title{font-size:11px;color:#666;margin-top:1px;line-height:1.4}
+.li-mock-cover{width:100%;max-height:220px;object-fit:cover;border-radius:6px;margin-bottom:10px;display:none}
+.li-mock-cover.on{display:block}
+.li-mock-body{font-size:12px;color:#1a1a1a;line-height:1.65;white-space:pre-wrap;max-height:320px;overflow-y:auto}
+.li-mock-footer{display:flex;gap:18px;margin-top:12px;padding-top:10px;border-top:1px solid #e0e0e0;font-size:11px;color:#666;font-weight:600}
+.li-meta-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--t3)}
+.li-chars{font-size:11px;font-weight:700}
+.li-chars.ok{color:#22c55e}
+.li-chars.warn{color:var(--amber)}
+.li-preview-spinner{display:none;text-align:center;padding:20px;color:var(--t3);font-size:12px}
+.li-preview-spinner.on{display:block}
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ──────────────────────────────────────────────────────── -->
+<nav class="topbar">
+  <div class="tb-logo" onclick="showScreen('home')" style="cursor:pointer">
+    <div class="tb-logo-ico">✍️</div>
+    ContentAI
+  </div>
+  <div class="tb-nav" id="appNav">
+    <div class="tb-tab on"  onclick="showScreen('home')" id="tab-home">🏠 Home</div>
+    <div class="tb-tab"     onclick="gotoView('editor')" id="tab-editor">📄 Editor</div>
+    <div class="tb-tab"     onclick="gotoView('pipeline')" id="tab-pipeline">⚡ Pipeline</div>
+    <div class="tb-tab"     onclick="gotoView('architecture')" id="tab-architecture">🧬 Architecture</div>
+    <div class="tb-tab"     onclick="gotoView('history')" id="tab-history">🕑 History</div>
+  </div>
+  <div class="tb-right">
+    <button class="tb-btn" onclick="openModal('settings')">⚙ Settings</button>
+    <div id="userArea">
+      <button class="google-btn" onclick="location.href='/auth/google'">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Sign in with Google
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HOME / LANDING (primary view) ─────────────────────────────────── -->
+<section class="home on" id="view-home">
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-tag"><span class="live-dot"></span> 7-Agent Pipeline · Research → Write → Publish</div>
+    <h1>AI Blogging,<br><em>Fully Automated</em></h1>
+    <p class="hero-sub">Drop a topic. Seven agents research the web, plan an outline, write every section in parallel, add charts &amp; visuals, and ship a publish-ready post — in minutes.</p>
+    <div style="position:relative;z-index:1;display:flex;gap:18px;justify-content:center;margin-top:16px">
+      <button class="pub-link" style="text-decoration:none;font-size:12px;color:var(--t2)" onclick="gotoView('architecture')">🧬 How it works</button>
+      <button class="pub-link" style="text-decoration:none;font-size:12px;color:var(--t2)" onclick="gotoView('history')">🕑 My posts</button>
+    </div>
+  </div>
+
+  <!-- pipeline running banner -->
+  <div class="pipe-banner" id="homePipeBanner" onclick="gotoView('pipeline')">
+    <div class="pipe-banner-dot"></div>
+    <div class="pipe-banner-text">
+      Pipeline is running…
+      <span class="pipe-banner-sub" id="homePipeBannerSub">Click to watch the live progress</span>
+    </div>
+    <span class="pipe-banner-arrow">→</span>
+  </div>
+
+  <div class="mstrip">
+    <div class="msc"><div class="msv" style="color:var(--blue)">7</div><div class="msl">AI Agents</div></div>
+    <div class="msc"><div class="msv" style="color:var(--violet)">N×</div><div class="msl">Parallel Writers</div></div>
+    <div class="msc"><div class="msv" style="color:var(--cyan)">4</div><div class="msl">Publish Targets</div></div>
+    <div class="msc"><div class="msv" style="color:var(--amber)">SEO</div><div class="msl">Optimised Output</div></div>
+  </div>
+
+  <div class="home-wrap">
+    <div class="home-card">
+      <div class="hc-section-label">What do you want to write about?</div>
+      <div class="home-topic-wrap">
+        <textarea class="home-topic" id="homeTopicInput" rows="3"
+          placeholder="e.g. How to build a production RAG system with LangChain and Pinecone… or click 🎙 to speak"
+          oninput="syncHomeCount()">How multi-agent AI systems are changing software development in 2025</textarea>
+        <button class="home-mic" id="homeMicBtn" onclick="toggleVoice('homeTopicInput',this)" title="Voice input">🎙</button>
+      </div>
+      <div class="home-topic-foot">
+        <div class="home-chips">
+          <span class="home-chip" onclick="useHomeChip(this)" data-v="How to build a production RAG system with LangChain and Pinecone">RAG Tutorial</span>
+          <span class="home-chip" onclick="useHomeChip(this)" data-v="LangGraph vs LangChain: which to use for AI agents">LangGraph</span>
+          <span class="home-chip" onclick="useHomeChip(this)" data-v="How to fine-tune an LLM on your own data">Fine-tuning</span>
+          <span class="home-chip" onclick="useHomeChip(this)" data-v="Building production AI pipelines with FastAPI">FastAPI + AI</span>
+        </div>
+        <span style="font-size:10px;color:var(--t3)" id="homeCount">86 chars</span>
+      </div>
+
+      <div class="home-divider"></div>
+
+      <div class="hc-section-label">Style</div>
+      <div class="home-style-grid">
+        <div class="home-sg on" onclick="setHomeStyle(this)" data-s="tutorial">🎓 Tutorial</div>
+        <div class="home-sg"    onclick="setHomeStyle(this)" data-s="explainer">💡 Explainer</div>
+        <div class="home-sg"    onclick="setHomeStyle(this)" data-s="opinion">💭 Opinion</div>
+        <div class="home-sg"    onclick="setHomeStyle(this)" data-s="how-to">🛠 How-To</div>
+        <div class="home-sg"    onclick="setHomeStyle(this)" data-s="news">📰 News</div>
+        <div class="home-sg"    onclick="setHomeStyle(this)" data-s="casestudy">📊 Case Study</div>
+      </div>
+
+      <div class="home-divider"></div>
+
+      <div class="hc-section-label">Cover Image</div>
+      <div class="home-img-row">
+        <div class="home-img-choice on" id="homeImgAI"     onclick="setHomeImgChoice('ai')">🤖 AI generated</div>
+        <div class="home-img-choice"    id="homeImgUpload" onclick="setHomeImgChoice('upload')">📤 Upload</div>
+      </div>
+      <div id="homeUploadWrap" style="display:none">
+        <div class="home-upload" id="homeDropZone"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleHomeDrop(event)">
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="handleHomeFileSelect(event)"/>
+          <div style="pointer-events:none">
+            <span style="font-size:22px;display:block;margin-bottom:4px">🖼️</span>
+            <div style="font-size:12px;color:var(--t2);font-weight:600">Click or drag &amp; drop</div>
+            <div style="font-size:10px;color:var(--t3);margin-top:2px" id="homeUploadStatus">JPEG · PNG · WEBP · Max 8 MB</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="home-gen" id="homeGenBtn" onclick="startGenerationFromHome()">
+        ✨ Generate with AI →
+      </button>
+    </div>
+    <div class="home-foot">Sign in with Google to save your posts, history &amp; publishing connections · ContentAI · localhost:8001</div>
+  </div>
+
+  <!-- recent posts strip -->
+  <div class="home-history" id="homeHistoryStrip" style="display:none">
+    <div class="home-history-head">
+      <h4>🕑 History</h4>
+      <button onclick="gotoView('history')">View all →</button>
+    </div>
+    <div class="home-hist-row" id="homeHistRow"></div>
+  </div>
+</section>
+
+<!-- ── MAIN LAYOUT (workspace — secondary) ───────────────────────────── -->
+<div class="layout" id="appShell" style="display:none">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">Topic</div>
+    <div class="sb-field">
+      <div class="sb-label">What to write about</div>
+      <textarea class="sb-input" id="topicInput" rows="4"
+        placeholder="e.g. How to build a RAG system with LangChain and Pinecone…"
+        oninput="countChars()">How multi-agent AI systems are changing software development in 2025</textarea>
+    </div>
+    <div class="mic-row">
+      <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">🎙</button>
+      <span class="char-count" id="ccount">86 chars</span>
+    </div>
+    <div class="sb-chips">
+      <span class="sb-chip" onclick="useChip(this)" data-v="How to build a production RAG system with LangChain">RAG Tutorial</span>
+      <span class="sb-chip" onclick="useChip(this)" data-v="LangGraph vs LangChain: which to use for AI agents">LangGraph</span>
+      <span class="sb-chip" onclick="useChip(this)" data-v="How to fine-tune an LLM on your own data">Fine-tuning</span>
+      <span class="sb-chip" onclick="useChip(this)" data-v="Building production AI pipelines with FastAPI">FastAPI + AI</span>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section">Style</div>
+    <div class="style-grid">
+      <div class="sg-item on" onclick="setStyle(this)" data-s="tutorial">🎓 Tutorial</div>
+      <div class="sg-item"   onclick="setStyle(this)" data-s="explainer">💡 Explainer</div>
+      <div class="sg-item"   onclick="setStyle(this)" data-s="opinion">💭 Opinion</div>
+      <div class="sg-item"   onclick="setStyle(this)" data-s="how-to">🛠 How-To</div>
+      <div class="sg-item"   onclick="setStyle(this)" data-s="news">📰 News</div>
+      <div class="sg-item"   onclick="setStyle(this)" data-s="casestudy">📊 Case Study</div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section">Cover Image</div>
+    <div class="img-choice-row">
+      <div class="img-choice on" id="imgChoiceAI"     onclick="setImgChoice('ai')">🤖 AI</div>
+      <div class="img-choice"    id="imgChoiceUpload" onclick="setImgChoice('upload')">📤 Upload</div>
+    </div>
+    <div id="uploadZoneWrap" style="display:none">
+      <div class="upload-zone" id="imgDropZone"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="handleDrop(event)">
+        <input type="file" id="imgFileInput" accept="image/jpeg,image/png,image/webp,image/gif"
+               onchange="handleFileSelect(event)"/>
+        <div class="uz-body">
+          <span class="uz-ico">🖼️</span>
+          <div class="uz-txt">Click or drag & drop</div>
+          <div class="uz-sub">JPEG · PNG · WEBP · Max 8 MB</div>
+        </div>
+        <div id="imgPreviewRow"></div>
+      </div>
+    </div>
+    <div class="upload-status" id="uploadStatus"></div>
+
+    <div class="sb-divider"></div>
+
+    <button class="gen-btn" id="genBtn" onclick="startGeneration()">
+      ✨ Generate with AI →
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- status bar -->
+    <div class="status-bar">
+      <div class="sb-dot" id="statusDot"></div>
+      <span id="statusText">Ready — enter a topic and generate</span>
+      <div class="sb-sep"></div>
+      <span id="wc-status" style="font-size:10px;color:var(--t3)"></span>
+      <div class="sb-spacer"></div>
+      <span style="font-size:10px;color:var(--t3)">ContentAI · 7 Agents · localhost:8001</span>
+    </div>
+
+    <!-- ── EDITOR VIEW ──────────────────────────────────────── -->
+    <div class="view-pane on" id="view-editor">
+      <!-- quality panel (HITL) -->
+      <div class="quality-panel" id="qualityPanel">
+        <div class="qp-head">
+          <span class="qp-title">🧐 Quality Report</span>
+          <span class="qp-score" id="qScore"></span>
+          <span style="font-size:10px;color:var(--t3)">/5</span>
+          <div class="qp-badge" id="qBadge"></div>
+        </div>
+        <div class="qp-sections" id="qSections"></div>
+        <div class="refine-box">
+          <label>💬 Request edits before publishing</label>
+          <textarea id="refineFeedback" placeholder="e.g. Add more code examples to the deployment section. Make the intro punchier."></textarea>
+          <div class="refine-actions">
+            <button class="ra-btn refine" id="refineBtn" onclick="runRefine()">🔁 Apply Feedback</button>
+            <button class="ra-btn approve" onclick="openPublish()">✅ Publish Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- editor toolbar -->
+      <div class="editor-toolbar">
+        <div class="et-tab on" id="et-edit"    onclick="switchEditorTab('edit')">✍️ Markdown Editor</div>
+        <div class="et-tab"   id="et-preview" onclick="switchEditorTab('preview')">👁 Live Preview</div>
+        <div class="et-sep"></div>
+        <div class="et-info">
+          <span class="et-wc" id="editorWc"></span>
+        </div>
+      </div>
+
+      <!-- err box -->
+      <div class="err-box" id="errBox"></div>
+
+      <!-- editor body: split panes -->
+      <div class="editor-body">
+        <div class="editor-pane on" id="epEdit">
+          <textarea class="md-editor" id="mdEditor"
+            placeholder="Your generated blog post will appear here as editable markdown…
+You can also paste or write markdown directly and publish it."
+            oninput="onEditorInput()"></textarea>
+        </div>
+        <div class="preview-pane" id="epPreview">
+          <div class="empty-state" id="previewEmpty">
+            <div class="empty-ico">📄</div>
+            <p style="font-size:13px">No content yet.<br>Generate a post or write markdown in the editor.</p>
+          </div>
+          <div id="coverArea" style="display:none"></div>
+          <div class="blog-preview" id="previewBody" style="display:none"></div>
+        </div>
+        <aside class="seo-sidebar" id="seoSidebar" style="display:none">
+          <div class="ss-label">SEO Title</div>
+          <div class="ss-val" id="ssSeoTitle">—</div>
+          <div class="ss-label">Meta Description</div>
+          <div class="ss-val" id="ssSeoMeta" style="font-size:10px;color:var(--t2)">—</div>
+          <div class="ss-divider"></div>
+          <div class="ss-label">Tags</div>
+          <div class="ss-tags" id="ssSeoTags"></div>
+          <div class="ss-divider"></div>
+          <div class="ss-label">Slug</div>
+          <div class="ss-val" id="ssSeoSlug" style="font-family:var(--mono);font-size:10px;color:var(--violet)">—</div>
+          <div class="ss-divider"></div>
+          <div class="ss-label">Quality Score</div>
+          <div class="ss-score" id="ssSeoScore">—</div>
+          <div class="ss-score-label">/ 5.0</div>
+          <div class="ss-divider"></div>
+          <div class="ss-label">Reading Time</div>
+          <div class="ss-val" id="ssSeoRead">—</div>
+        </aside>
+      </div>
+
+      <!-- bottom toolbar -->
+      <div class="preview-toolbar">
+        <button class="pt-btn pub" onclick="openPublish()">🚀 Publish</button>
+        <button class="pt-btn" onclick="copyMd()">📋 Copy MD</button>
+        <button class="pt-btn" onclick="downloadMd()">⬇ Download</button>
+        <button class="pt-btn" onclick="newContent()" style="margin-left:auto">+ New Topic</button>
+      </div>
+    </div>
+
+    <!-- ── PIPELINE VIEW ────────────────────────────────────── -->
+    <div class="view-pane" id="view-pipeline">
+      <div class="pipe-head">
+        <h3>⚡ 7-Agent Content Pipeline</h3>
+        <div class="pipe-badge" id="pipeBadge">Idle — generate content to start</div>
+      </div>
+      <div class="pipe-wrap">
+        <div class="phase-card" id="ph-research"><div class="pc-head"><div class="pc-left"><div class="pc-num">1</div><div class="pc-name">🔍 Research Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-research">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-research">Parallel Tavily search · facts, stats, sources</div></div>
+        <div class="phase-card" id="ph-outline"><div class="pc-head"><div class="pc-left"><div class="pc-num">2</div><div class="pc-name">📐 Outline Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-outline">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-outline">Structured JSON plan · H2/H3 sections</div></div>
+        <div class="phase-card" id="ph-writing"><div class="pc-head"><div class="pc-left"><div class="pc-num">3</div><div class="pc-name">✍️ Writer Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-writing">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-writing">Map-Reduce · all sections written in parallel</div></div>
+        <div class="phase-card" id="ph-quality"><div class="pc-head"><div class="pc-left"><div class="pc-num">4</div><div class="pc-name">🧐 Quality Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-quality">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-quality">Score sections · rewrite weak ones (max 2×)</div></div>
+        <div class="phase-card" id="ph-charts"><div class="pc-head"><div class="pc-left"><div class="pc-num">5</div><div class="pc-name">📊 Chart Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-charts">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-charts">Detect numeric data · auto Mermaid charts</div></div>
+        <div class="phase-card" id="ph-visuals"><div class="pc-head"><div class="pc-left"><div class="pc-num">6</div><div class="pc-name">🎨 Visual Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-visuals">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-visuals">Pollinations.ai cover + section images</div></div>
+        <div class="phase-card" id="ph-seo"><div class="pc-head"><div class="pc-left"><div class="pc-num">7</div><div class="pc-name">🔎 SEO Agent</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-seo">Queued</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-seo">Title · meta · tags · slug</div></div>
+        <div class="phase-card" id="ph-done"><div class="pc-head"><div class="pc-left"><div class="pc-num">✓</div><div class="pc-name">🚀 Publisher (HITL)</div></div><div style="display:flex;align-items:center;gap:5px"><div class="pc-status" id="ps-done">Waiting</div><div class="pc-spin"></div></div></div><div class="pc-body" id="pb-done">Review → refine → publish to any platform</div></div>
+      </div>
+      <div class="pipe-log-wrap">
+        <div class="pipe-log" id="pipeLog">
+          <div class="ll"><span class="lt">--:--:--</span><span class="lm">Waiting for content job…</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY VIEW ──────────────────────────────────────── -->
+    <div class="view-pane" id="view-history">
+      <div class="hist-wrap">
+        <div class="hist-toolbar">
+          <h3>🕑 Content History</h3>
+          <div class="hist-search">
+            <span style="color:var(--t3);font-size:11px">🔍</span>
+            <input type="text" placeholder="Search…" id="histSearch" oninput="filterHistory()"/>
+          </div>
+          <button class="tb-btn" onclick="loadHistory()" style="margin-left:8px">↻</button>
+        </div>
+        <div class="hist-filters">
+          <div class="hf on"  onclick="setHistFilter('all',this)">All</div>
+          <div class="hf"     onclick="setHistFilter('draft',this)">Drafts</div>
+          <div class="hf"     onclick="setHistFilter('devto',this)">dev.to</div>
+          <div class="hf"     onclick="setHistFilter('hashnode',this)">Hashnode</div>
+          <div class="hf"     onclick="setHistFilter('linkedin',this)">LinkedIn</div>
+          <div class="hf"     onclick="setHistFilter('medium',this)">Medium</div>
+        </div>
+        <div class="hist-grid" id="histGrid">
+          <div class="hist-empty">
+            <div class="empty-ico" style="font-size:40px">🕑</div>
+            <p>No history yet.<br>Generate and publish posts to see them here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ARCHITECTURE VIEW ─────────────────────────────────── -->
+    <div class="view-pane" id="view-architecture">
+      <div class="arch-wrap">
+        <div class="arch-head">
+          <h3>🧬 How ContentAI Works Internally</h3>
+          <p>Every blog post flows through a 7-agent pipeline orchestrated on the backend. Agents 1–2 run sequentially to gather facts and plan structure; Agent 3 fans out with a map-reduce so all sections are written concurrently; Agent 4 loops to fix weak sections; then charts, visuals and SEO are layered on before a human-in-the-loop publish step.</p>
+        </div>
+        <div class="arch-diagram">
+          <div class="mermaid" id="archMermaid">
+flowchart TB
+    U([👤 User Topic + Style]) --> A1
+    subgraph SEQ [Phase 1-2 · Sequential]
+        A1["🔍 1 · Research Agent<br/>parallel Tavily search"] --> A2["📐 2 · Outline Agent<br/>structured JSON plan"]
+    end
+    A2 --> MR
+    subgraph MAP [Phase 3 · Map-Reduce · Parallel]
+        MR{{"✍️ 3 · Writer Agent"}} --> S1["Section 1"]
+        MR --> S2["Section 2"]
+        MR --> S3["Section N"]
+        S1 --> RED([Reduce / Join])
+        S2 --> RED
+        S3 --> RED
+    end
+    RED --> A4
+    subgraph LOOP [Phase 4 · Quality Loop ≤2×]
+        A4["🧐 4 · Quality Agent<br/>score sections"] -->|weak| RW["♻️ Rewrite"]
+        RW --> A4
+    end
+    A4 -->|pass| A5["📊 5 · Chart Agent<br/>auto Mermaid"]
+    A5 --> A6["🎨 6 · Visual Agent<br/>cover + section images"]
+    A6 --> A7["🔎 7 · SEO Agent<br/>title · meta · tags · slug"]
+    A7 --> HITL{{"🚀 Human-in-the-Loop<br/>review · refine · publish"}}
+    HITL --> OUT([dev.to · Hashnode · LinkedIn · Medium])
+          </div>
+        </div>
+        <div class="arch-grid" id="archGrid"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── PUBLISH MODAL ─────────────────────────────────────────────────── -->
+<div class="overlay" id="overlay-publish" onclick="bgClose(event,'publish')">
+  <div class="modal" id="publishModal" style="width:500px;transition:width .25s">
+    <div class="mclose" onclick="closeModal('publish')">✕</div>
+    <h2>🚀 Publish Your Blog Post</h2>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);margin-bottom:8px">Choose Platform</div>
+    <div class="plat-grid">
+      <div class="plat-card selected" id="plat-devto"     onclick="selectPlat('devto')"><div class="plat-icon">💻</div><div class="plat-name">dev.to</div><div class="plat-desc">Free · Best for devs</div></div>
+      <div class="plat-card"          id="plat-hashnode"  onclick="selectPlat('hashnode')"><div class="plat-icon">📝</div><div class="plat-name">Hashnode</div><div class="plat-desc">Free · Custom domain</div></div>
+      <div class="plat-card"          id="plat-linkedin"  onclick="selectPlat('linkedin')"><div class="plat-icon">🔵</div><div class="plat-name">LinkedIn</div><div class="plat-desc">AI-summarised post</div></div>
+      <div class="plat-card"          id="plat-twitter"   onclick="selectPlat('twitter')"><div class="plat-icon">𝕏</div><div class="plat-name">X (Twitter)</div><div class="plat-desc">Auto-thread · max 8 tweets</div></div>
+      <div class="plat-card"          id="plat-medium"    onclick="selectPlat('medium')"><div class="plat-icon">⚫</div><div class="plat-name">Medium</div><div class="plat-desc">Full markdown article</div></div>
+    </div>
+
+    <!-- X thread info (shown when X selected) -->
+    <div id="pubTwitterNote" style="display:none;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px;padding:9px 12px;border:1px solid var(--b1);border-radius:8px;background:var(--s2)">
+      🧵 Long posts are AI-condensed into a thread (max 8 tweets). Your cover image is attached to the first tweet.
+    </div>
+
+    <!-- small connection status line (all platforms) -->
+    <div id="pubConnected" style="display:none;align-items:center;gap:7px;font-size:11px;color:#22c55e;font-weight:600;margin-bottom:12px;padding:8px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px">
+      <span>✓ Connected</span>
+      <span id="platNameConnected" style="color:var(--t2);font-weight:400"></span>
+      <button class="pub-link" style="margin-left:auto" onclick="closeModal('publish');openModal('settings')">Manage</button>
+    </div>
+
+    <!-- Not signed in AND platform needs a saved account (LinkedIn / X) -->
+    <div id="pubLoginRequired" style="display:none;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px;padding:12px 14px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:rgba(245,158,11,.06)">
+      🔒 <strong id="loginReqTitle">Sign in required</strong><br>
+      <span id="loginReqBody" style="color:var(--t3)"></span>
+      <div style="margin-top:8px">
+        <button onclick="location.href='/auth/google'" style="background:var(--blue);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;padding:6px 14px;cursor:pointer">Sign in with Google</button>
+      </div>
+    </div>
+
+    <!-- Signed in, but LinkedIn not connected yet -->
+    <div id="pubLinkedinSetup" style="display:none;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px;padding:11px 13px;border:1px solid var(--b1);border-radius:8px;background:var(--s2)">
+      LinkedIn needs an <strong>Access Token</strong> and an <strong>Author URN</strong>.
+      <button class="pub-link" onclick="closeModal('publish');openModal('settings')">Connect in Settings →</button>
+    </div>
+
+    <!-- Signed in, but X (official API) not connected yet -->
+    <div id="pubTwitterSetup" style="display:none;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px;padding:11px 13px;border:1px solid var(--b1);border-radius:8px;background:var(--s2)">
+      X needs 4 credentials — <strong>API Key</strong>, <strong>API Key Secret</strong>, <strong>Access Token</strong> &amp; <strong>Access Token Secret</strong>.
+      <button class="pub-link" onclick="closeModal('publish');openModal('settings')">Connect in Settings →</button>
+    </div>
+
+    <!-- Inline key entry (devto / hashnode / medium when not connected) -->
+    <div id="pubKeyArea" style="display:none">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);margin-bottom:6px">API Key for <span id="platNameLabel">dev.to</span></div>
+      <div class="fw" style="margin-bottom:5px">
+        <span class="fi">🔑</span>
+        <input type="password" id="pubApiKey" placeholder="Paste your API key…" autocomplete="off"/>
+        <button class="eye" onclick="toggleKey('pubApiKey',this)">👁</button>
+      </div>
+      <div id="keyHint" style="font-size:10px;color:var(--t3);margin-bottom:6px;line-height:1.5"></div>
+      <div id="pubKeyPersistNote" style="font-size:10px;color:var(--t3);margin-bottom:14px"></div>
+    </div>
+
+    <!-- LinkedIn preview (spinner then card) -->
+    <div id="liPreviewSpinner" style="display:none;text-align:center;padding:24px;color:var(--t2);font-size:13px;font-weight:600">
+      <div style="font-size:24px;margin-bottom:8px">⏳</div>
+      Generating your LinkedIn post preview…
+    </div>
+
+    <div id="liPreview" style="display:none;flex-direction:column;gap:12px;margin-bottom:14px">
+      <!-- header row -->
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.6px">🔵 LinkedIn Post Preview</span>
+        <span id="liCharCount" style="font-size:11px;font-weight:700"></span>
+      </div>
+      <!-- mock LinkedIn card -->
+      <div style="background:#fff;border-radius:10px;padding:16px;border:1px solid #e0e0e0">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div id="liAvatarArea" style="width:44px;height:44px;border-radius:50%;background:#0077b5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:800;flex-shrink:0">A</div>
+          <div>
+            <div id="liMockName" style="font-size:14px;font-weight:700;color:#1a1a1a">You</div>
+            <div style="font-size:11px;color:#666;margin-top:1px">Your LinkedIn Profile · <span style="color:#0077b5">1st</span> · now</div>
+          </div>
+        </div>
+        <!-- cover image -->
+        <img id="liMockCover" src="" alt="cover" style="display:none;width:100%;max-height:240px;object-fit:cover;border-radius:6px;margin-bottom:12px"/>
+        <!-- post text -->
+        <div id="liMockBody" style="font-size:13px;color:#1a1a1a;line-height:1.65;white-space:pre-wrap;max-height:320px;overflow-y:auto"></div>
+        <!-- reactions bar -->
+        <div style="display:flex;gap:20px;margin-top:14px;padding-top:10px;border-top:1px solid #e0e0e0;font-size:12px;color:#666;font-weight:600">
+          <span>👍 Like</span><span>💬 Comment</span><span>🔁 Repost</span><span>✉️ Send</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--t3);line-height:1.5">AI-condensed from your full article. Only this summary is posted to LinkedIn — not the full markdown.</div>
+    </div>
+
+    <!-- X thread preview (spinner then tweet cards) -->
+    <div id="twPreviewSpinner" style="display:none;text-align:center;padding:24px;color:var(--t2);font-size:13px;font-weight:600">
+      <div style="font-size:24px;margin-bottom:8px">🧵</div>
+      Building your X thread…
+    </div>
+
+    <div id="twPreview" style="display:none;flex-direction:column;gap:10px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.6px">🧵 X Thread Preview</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="twCount" style="font-size:11px;font-weight:700;color:var(--cyan)"></span>
+          <button class="pub-link" onclick="copyThread()">📋 Copy all</button>
+        </div>
+      </div>
+      <div id="twCards" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto"></div>
+      <div style="font-size:10px;color:var(--t3);line-height:1.5">No API credits? Copy each tweet and paste it on X manually — reply to your own tweet to build the thread. Your cover image can be attached to tweet 1 by hand.</div>
+    </div>
+
+    <div class="pub-status" id="pubStatus"></div>
+    <button class="pub-btn" id="pubBtn" onclick="doPublish()">🚀 Publish Now</button>
+  </div>
+</div>
+
+<!-- ── SETTINGS MODAL ─────────────────────────────────────────────────── -->
+<div class="overlay" id="overlay-settings" onclick="bgClose(event,'settings')">
+  <div class="modal">
+    <div class="mclose" onclick="closeModal('settings')">✕</div>
+    <h2>⚙ Settings</h2>
+    <div class="auth-row" id="authStatus"></div>
+    <div class="grid2">
+      <div class="mfield full">
+        <label>Model</label>
+        <div class="fw"><span class="fi">🧠</span>
+          <select id="cfgModel" onchange="onModelChange()">
+            <optgroup label="Gemini (Google)">
+              <option value="gemini|gemini-2.5-flash">gemini-2.5-flash — fast & capable</option>
+              <option value="gemini|gemini-2.5-pro">gemini-2.5-pro — most capable</option>
+              <option value="gemini|gemini-2.0-flash">gemini-2.0-flash</option>
+            </optgroup>
+            <optgroup label="Groq (Fast Open-Source)">
+              <option value="groq|llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+              <option value="groq|mixtral-8x7b-32768">mixtral-8x7b (long context)</option>
+            </optgroup>
+            <optgroup label="NVIDIA NIM">
+              <option value="nvidia|meta/llama-3.1-70b-instruct">llama-3.1-70b-instruct</option>
+              <option value="nvidia|nvidia/llama-3.3-nemotron-super-49b-v1">nemotron-super-49b</option>
+            </optgroup>
+            <optgroup label="OpenAI">
+              <option value="openai|gpt-4o">gpt-4o</option>
+              <option value="openai|gpt-4o-mini">gpt-4o-mini</option>
+            </optgroup>
+            <optgroup label="── Euron · OpenAI ──">
+              <option value="euron|gpt-4.1">gpt-4.1</option>
+              <option value="euron|gpt-4.1-mini">gpt-4.1-mini</option>
+              <option value="euron|gpt-4.1-nano">gpt-4.1-nano</option>
+              <option value="euron|gpt-4o">gpt-4o</option>
+              <option value="euron|gpt-4o-mini">gpt-4o-mini</option>
+              <option value="euron|gpt-4">gpt-4</option>
+              <option value="euron|o3">o3</option>
+              <option value="euron|o4-mini">o4-mini</option>
+              <option value="euron|gpt-5">gpt-5</option>
+            </optgroup>
+            <optgroup label="── Euron · Google Gemini ──">
+              <option value="euron|gemini-2.5-pro">gemini-2.5-pro</option>
+              <option value="euron|gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="euron|gemini-3-flash">gemini-3-flash</option>
+              <option value="euron|gemini-omni-flash">gemini-omni-flash</option>
+              <option value="euron|gemini-omni">gemini-omni</option>
+              <option value="euron|gemini-5.5-flash">gemini-5.5-flash</option>
+              <option value="euron|gemini-5.1-pro">gemini-5.1-pro</option>
+              <option value="euron|gemini-5.1-flash">gemini-5.1-flash</option>
+            </optgroup>
+            <optgroup label="── Euron · Anthropic Claude ──">
+              <option value="euron|claude-sonnet-4-6">claude-sonnet-4-6</option>
+              <option value="euron|claude-sonnet-4">claude-sonnet-4</option>
+              <option value="euron|claude-opus-4">claude-opus-4</option>
+              <option value="euron|claude-fable-5">claude-fable-5</option>
+              <option value="euron|claude-opus-4-8">claude-opus-4-8</option>
+              <option value="euron|claude-opus-4-7">claude-opus-4-7</option>
+              <option value="euron|claude-opus-4-6">claude-opus-4-6</option>
+              <option value="euron|claude-haiku-4-5">claude-haiku-4-5</option>
+            </optgroup>
+            <optgroup label="── Euron · Meta Llama ──">
+              <option value="euron|llama-3.3-70b">llama-3.3-70b</option>
+              <option value="euron|llama-3.1-8b-instant">llama-3.1-8b-instant</option>
+              <option value="euron|llama-guard-4-12b">llama-guard-4-12b</option>
+            </optgroup>
+            <optgroup label="── Euron · Groq ──">
+              <option value="euron|groq-compound">groq-compound</option>
+              <option value="euron|groq-compound-mini">groq-compound-mini</option>
+            </optgroup>
+            <optgroup label="── Euron · Sarvam ──">
+              <option value="euron|sarvam-m">sarvam-m</option>
+              <option value="euron|sarvam-saarsa-v3">sarvam-saarsa-v3</option>
+              <option value="euron|sarvam-bulbul-v3">sarvam-bulbul-v3</option>
+            </optgroup>
+            <optgroup label="── Euron · Alibaba ──">
+              <option value="euron|qwen-3-32b">qwen-3-32b</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="mfield full" id="geminiKeyField">
+        <label>Gemini API Key</label>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="geminiKey" placeholder="AIza…" autocomplete="off"/><button class="eye" onclick="toggleKey('geminiKey',this)">👁</button></div>
+      </div>
+      <div class="mfield full" id="groqKeyField" style="display:none">
+        <label>Groq API Key</label>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="groqKey" placeholder="gsk_…" autocomplete="off"/><button class="eye" onclick="toggleKey('groqKey',this)">👁</button></div>
+      </div>
+      <div class="mfield full" id="nvidiaKeyField" style="display:none">
+        <label>NVIDIA API Key <span style="color:var(--t3);font-weight:400">(fallback if Groq is unavailable)</span></label>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="nvidiaKey" placeholder="nvapi-…" autocomplete="off"/><button class="eye" onclick="toggleKey('nvidiaKey',this)">👁</button></div>
+        <div id="nvidiaKeyNote" style="font-size:9px;color:var(--t3);margin-top:4px;line-height:1.5">Groq → NVIDIA → Gemini — automatic fallback chain if a key is missing or fails.</div>
+      </div>
+      <div class="mfield" id="openaiKeyField" style="display:none">
+        <label>OpenAI API Key</label>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="openaiKey" placeholder="sk-…" autocomplete="off"/><button class="eye" onclick="toggleKey('openaiKey',this)">👁</button></div>
+      </div>
+      <div class="mfield full" id="euronKeyField" style="display:none">
+        <label>Euron API Key <span style="color:var(--t3);font-weight:400">— from <a href="https://euron.one" target="_blank" style="color:var(--blue)">euron.one</a> → API Keys</span></label>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="euronKey" placeholder="euri-…" autocomplete="off"/><button class="eye" onclick="toggleKey('euronKey',this)">👁</button></div>
+      </div>
+      <div class="mfield">
+        <label>Tavily Search Key</label>
+        <div class="fw"><span class="fi">🔍</span><input type="password" id="tavilyKey" placeholder="tvly-…" autocomplete="off"/><button class="eye" onclick="toggleKey('tavilyKey',this)">👁</button></div>
+      </div>
+    </div>
+    <div id="keySyncNote" style="font-size:10px;color:var(--t3);margin:-6px 0 10px;line-height:1.5"></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="save-btn" onclick="saveConfig()">Save & Sync</button>
+      <span id="saveMsg" style="font-size:11px;color:var(--blue);display:none">✓ Saved</span>
+    </div>
+
+    <!-- Publishing connections — set once, stored in DB, never asked again -->
+    <div class="settings-subhead">🔗 Publishing Connections</div>
+    <div id="pubConnGuestBanner" style="display:none;font-size:11px;color:var(--amber);line-height:1.6;margin:-4px 0 12px;padding:9px 12px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:rgba(245,158,11,.06);align-items:center;gap:10px">
+      <span>🔒 Sign in to save these — LinkedIn &amp; X can't be used without an account. dev.to, Hashnode &amp; Medium still work as a guest with a one-time key.</span>
+      <button onclick="location.href='/auth/google'" style="flex-shrink:0;background:var(--blue);border:none;border-radius:6px;color:#fff;font-size:10px;font-weight:700;padding:5px 10px;cursor:pointer;white-space:nowrap">Sign in</button>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin:-4px 0 12px;line-height:1.5">Add these once. They're encrypted, saved to your account, and reused automatically every time you publish.</div>
+
+    <div class="grid2">
+      <div class="mfield full">
+        <div class="conn-row"><label>dev.to API Key</label><span class="conn-badge no" id="conn-devto">Not connected</span></div>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="connDevto" placeholder="dev.to → Settings → Extensions → API Key" autocomplete="off"/><button class="eye" onclick="toggleKey('connDevto',this)">👁</button></div>
+      </div>
+      <div class="mfield full">
+        <div class="conn-row"><label>Hashnode Token <span style="color:var(--t3);font-weight:400">(append |publicationId optional)</span></label><span class="conn-badge no" id="conn-hashnode">Not connected</span></div>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="connHashnode" placeholder="Personal Access Token" autocomplete="off"/><button class="eye" onclick="toggleKey('connHashnode',this)">👁</button></div>
+      </div>
+      <div class="mfield full">
+        <div class="conn-row"><label>Medium Integration Token</label><span class="conn-badge no" id="conn-medium">Not connected</span></div>
+        <div class="fw"><span class="fi">🔑</span><input type="password" id="connMedium" placeholder="Settings → Security and apps → Integration tokens" autocomplete="off"/><button class="eye" onclick="toggleKey('connMedium',this)">👁</button></div>
+      </div>
+      <div class="mfield full">
+        <div class="conn-row"><label>🔵 LinkedIn</label><span class="conn-badge no" id="conn-linkedin">Not connected</span></div>
+        <div class="fw" style="margin-bottom:6px"><span class="fi">🔑</span><input type="password" id="connLinkedinToken" placeholder="LINKEDIN_ACCESS_TOKEN" autocomplete="off"/><button class="eye" onclick="toggleKey('connLinkedinToken',this)">👁</button></div>
+        <div class="fw"><span class="fi">🆔</span><input type="text" id="connLinkedinUrn" placeholder="LINKEDIN_AUTHOR_URN — e.g. urn:li:person:XXXXXX" autocomplete="off"/></div>
+        <div style="font-size:9px;color:var(--t3);margin-top:5px;line-height:1.5">Access token from the LinkedIn Developer Portal · Author URN is your member URN (urn:li:person:…).</div>
+      </div>
+      <div class="mfield full">
+        <div class="conn-row"><label>𝕏 X (Twitter)</label><span class="conn-badge no" id="conn-twitter">Not connected</span></div>
+        <div class="fw" style="margin-bottom:6px"><span class="fi">🔑</span><input type="password" id="connTwApiKey" placeholder="API Key (Consumer Key)" autocomplete="off"/><button class="eye" onclick="toggleKey('connTwApiKey',this)">👁</button></div>
+        <div class="fw" style="margin-bottom:6px"><span class="fi">🔒</span><input type="password" id="connTwApiSecret" placeholder="API Key Secret (Consumer Secret)" autocomplete="off"/><button class="eye" onclick="toggleKey('connTwApiSecret',this)">👁</button></div>
+        <div class="fw" style="margin-bottom:6px"><span class="fi">🎫</span><input type="password" id="connTwAccessToken" placeholder="Access Token" autocomplete="off"/><button class="eye" onclick="toggleKey('connTwAccessToken',this)">👁</button></div>
+        <div class="fw"><span class="fi">🔒</span><input type="password" id="connTwAccessSecret" placeholder="Access Token Secret" autocomplete="off"/><button class="eye" onclick="toggleKey('connTwAccessSecret',this)">👁</button></div>
+        <div style="font-size:9px;color:var(--t3);margin-top:5px;line-height:1.5">From developer.x.com → your app → Keys and tokens → <strong>OAuth 1.0 Keys</strong>. App needs Read &amp; Write. Long posts auto-thread (max 8 tweets) with your cover image on tweet 1.</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <button class="save-btn" onclick="saveConnections()">Save Connections</button>
+      <span id="connSaveMsg" style="font-size:11px;color:#22c55e;display:none">✓ Connections saved</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+mermaid.initialize({startOnLoad:false,theme:'dark',securityLevel:'loose'});
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let rawMd='', coverUrl='', seoData={}, qualityReport={}, currentUser=null;
+let uploadedCoverUrl='', imgChoice='ai';
+let allHistory=[], histFilter='all';
+let pipelineRunning=false, pipelinePhase='';
+
+function setPipelineRunning(active, phase=''){
+  pipelineRunning=active; pipelinePhase=phase;
+  const banner=document.getElementById('homePipeBanner');
+  if(!banner) return;
+  banner.classList.toggle('on', active);
+  if(active && phase) document.getElementById('homePipeBannerSub').textContent='Phase: '+phase+' · Click to watch live';
+}
+
+function renderHomeHistory(){
+  if(!currentUser){_paintHomeHistory();return;}   // no point fetching — server returns [] anyway
+  fetch('/api/history').then(r=>r.ok?r.json():[]).then(d=>{allHistory=d;_paintHomeHistory();}).catch(()=>{});
+}
+function _paintHomeHistory(){
+  const strip=document.getElementById('homeHistoryStrip');
+  const row=document.getElementById('homeHistRow');
+  if(!strip||!row) return;
+
+  if(!currentUser){
+    strip.style.display='block';
+    row.innerHTML=`<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:10px">
+      <span style="font-size:20px">🔒</span>
+      <div style="flex:1">
+        <div style="font-size:12.5px;font-weight:600;color:var(--t1)">Sign in to save &amp; revisit your posts</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:1px">Every post you generate here as a guest is lost when you close the tab.</div>
+      </div>
+      <button onclick="location.href='/auth/google'" style="flex-shrink:0;background:var(--blue);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;padding:7px 14px;cursor:pointer">Sign in</button>
+    </div>`;
+    return;
+  }
+
+  const items=allHistory.slice(0,6);
+  if(!items.length){
+    strip.style.display='block';
+    row.innerHTML=`<div class="home-hist-empty">No posts yet — generate your first one above ✨</div>`;
+    return;
+  }
+  strip.style.display='block';
+  const platLabels={draft:'Draft',devto:'dev.to',hashnode:'Hashnode',linkedin:'LinkedIn',medium:'Medium'};
+  row.innerHTML=items.map(p=>{
+    const date=new Date(p.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const wc=p.word_count?p.word_count.toLocaleString()+' words · ':'';
+    const ico=p.cover_url
+      ? `<div class="home-hist-ico"><img src="${p.cover_url}" onerror="this.parentElement.textContent='📝'" alt=""/></div>`
+      : `<div class="home-hist-ico">📝</div>`;
+    // platforms is now an array; fall back to legacy single platform field
+    const plats=Array.isArray(p.platforms)&&p.platforms.length?p.platforms:[p.platform||'draft'];
+    const platBadges=plats.map(pl=>{
+      const label=platLabels[pl]||pl;
+      const url=(p.urls&&p.urls[pl])||'';
+      if(url&&pl!=='draft'){
+        return `<a href="${url}" target="_blank" onclick="event.stopPropagation()" class="home-hist-plat ${pl}">${label} ↗</a>`;
+      }
+      return `<span class="home-hist-plat ${pl}">${label}</span>`;
+    }).join('');
+    return `<button class="home-hist-btn" onclick="loadDraftAndGo(${p.id})">
+      ${ico}
+      <div class="home-hist-body">
+        <div class="home-hist-title">${p.title||p.topic||'Untitled'}</div>
+        <div class="home-hist-meta">${platBadges}${wc}${date}</div>
+      </div>
+      <span class="home-hist-arrow">→</span>
+    </button>`;
+  }).join('');
+}
+function loadDraftAndGo(id){
+  loadDraft(id);   // existing function — loads markdown + switches to editor
+  showScreen('app');
+}
+const VIEWS=['editor','pipeline','architecture','history'];
+
+// ── SCREENS (home ↔ workspace) ────────────────────────────────────────
+function showScreen(s){
+  const home=document.getElementById('view-home');
+  const app=document.getElementById('appShell');
+  if(s==='home'){
+    home.classList.add('on');
+    app.style.display='none';
+    // mark home tab active, clear all workspace tabs
+    document.getElementById('tab-home')?.classList.add('on');
+    ['editor','pipeline','architecture','history'].forEach(v=>
+      document.getElementById('tab-'+v)?.classList.remove('on'));
+    renderHomeHistory();
+  }else{
+    home.classList.remove('on');
+    app.style.display='flex';
+    document.getElementById('tab-home')?.classList.remove('on');
+  }
+}
+
+// ── NAVIGATION (within workspace) ─────────────────────────────────────
+function gotoView(id){
+  showScreen('app');
+  VIEWS.forEach(v=>{
+    document.getElementById('view-'+v)?.classList.toggle('on',v===id);
+    document.getElementById('tab-'+v)?.classList.toggle('on',v===id);
+  });
+  document.getElementById('tab-home')?.classList.remove('on');
+  if(id==='history'){document.getElementById('tab-history').classList.remove('ready');loadHistory();}
+  if(id==='editor')document.getElementById('tab-editor').classList.remove('ready');
+  if(id==='architecture')renderArchitecture();
+}
+
+// ── ARCHITECTURE VIEW ─────────────────────────────────────────────────
+let archRendered=false;
+const ARCH_AGENTS=[
+  {n:'1',name:'🔍 Research Agent',desc:'Fires multiple Tavily web searches in parallel and gathers fresh facts, stats and sources for the topic.',tag:'Parallel'},
+  {n:'2',name:'📐 Outline Agent',desc:'Turns the research into a structured JSON plan — H2/H3 sections, key points and which sections need code or diagrams.',tag:'Sequential'},
+  {n:'3',name:'✍️ Writer Agent',desc:'Map-Reduce: each outline section is written concurrently by its own LLM call, then joined into one draft.',tag:'Map-Reduce'},
+  {n:'4',name:'🧐 Quality Agent',desc:'Scores every section, flags weak ones and rewrites them — looping up to 2× until the draft passes the bar.',tag:'Feedback loop'},
+  {n:'5',name:'📊 Chart Agent',desc:'Detects numeric data in the draft and auto-generates Mermaid charts to visualise it.',tag:'Conditional'},
+  {n:'6',name:'🎨 Visual Agent',desc:'Generates a cover image and per-section visuals via Pollinations.ai.',tag:'Media'},
+  {n:'7',name:'🔎 SEO Agent',desc:'Produces the SEO title, meta description, tags and URL slug for the finished post.',tag:'Finalise'},
+  {n:'✓',name:'🚀 Human-in-the-Loop',desc:'You review the quality report, request edits in natural language, then publish to dev.to, Hashnode, LinkedIn or Medium.',tag:'HITL'},
+];
+function renderArchitecture(){
+  const grid=document.getElementById('archGrid');
+  if(grid && !grid.dataset.filled){
+    grid.innerHTML=ARCH_AGENTS.map(a=>`
+      <div class="arch-card">
+        <div class="ac-num">${a.n}</div>
+        <div class="ac-name">${a.name}</div>
+        <div class="ac-desc">${a.desc}</div>
+        <span class="ac-tag">${a.tag}</span>
+      </div>`).join('');
+    grid.dataset.filled='1';
+  }
+  if(!archRendered){
+    try{ mermaid.run({nodes:[document.getElementById('archMermaid')]}); archRendered=true; }
+    catch(e){}
+  }
+}
+
+// ── HOME (landing) HELPERS ────────────────────────────────────────────
+function syncHomeCount(){document.getElementById('homeCount').textContent=document.getElementById('homeTopicInput').value.length+' chars';}
+function useHomeChip(el){document.getElementById('homeTopicInput').value=el.dataset.v;syncHomeCount();}
+function setHomeStyle(el){document.querySelectorAll('.home-sg').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+function setHomeImgChoice(c){
+  imgChoice=c;
+  document.getElementById('homeImgAI').classList.toggle('on',c==='ai');
+  document.getElementById('homeImgUpload').classList.toggle('on',c==='upload');
+  document.getElementById('homeUploadWrap').style.display=c==='upload'?'block':'none';
+  if(c==='ai'){uploadedCoverUrl='';const hs=document.getElementById('homeUploadStatus');if(hs)hs.textContent='JPEG · PNG · WEBP · Max 8 MB';}
+}
+function handleHomeFileSelect(e){const f=e.target.files[0];if(f)uploadFile(f);}
+function handleHomeDrop(e){e.preventDefault();document.getElementById('homeDropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)uploadFile(f);}
+
+function startGenerationFromHome(){
+  const topic=document.getElementById('homeTopicInput').value.trim();
+  if(!topic){showToast('Please enter a topic');return;}
+  // Sync the landing choices into the canonical workspace inputs
+  document.getElementById('topicInput').value=topic;countChars();
+  const style=document.querySelector('.home-sg.on')?.dataset.s||'tutorial';
+  document.querySelectorAll('.sg-item').forEach(s=>s.classList.toggle('on',s.dataset.s===style));
+  setImgChoice(imgChoice);
+  if(imgChoice==='upload'&&uploadedCoverUrl){
+    document.getElementById('imgPreviewRow').innerHTML=`<img class="upload-thumb" src="${uploadedCoverUrl}" alt="cover"/>`;
+    document.getElementById('uploadStatus').textContent='✓ Uploaded';
+  }
+  showScreen('app');
+  startGeneration();
+}
+
+// ── SIDEBAR HELPERS ───────────────────────────────────────────────────
+function countChars(){document.getElementById('ccount').textContent=document.getElementById('topicInput').value.length+' chars';}
+countChars();
+function useChip(el){document.getElementById('topicInput').value=el.dataset.v;countChars();}
+function setStyle(el){document.querySelectorAll('.sg-item').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+
+// ── EDITOR TABS ───────────────────────────────────────────────────────
+function switchEditorTab(tab){
+  document.getElementById('epEdit').classList.toggle('on',tab==='edit');
+  document.getElementById('epPreview').classList.toggle('on',tab==='preview');
+  document.getElementById('et-edit').classList.toggle('on',tab==='edit');
+  document.getElementById('et-preview').classList.toggle('on',tab==='preview');
+  if(tab==='preview') renderPreview();
+}
+function onEditorInput(){
+  rawMd=document.getElementById('mdEditor').value;
+  const wc=rawMd.trim()?rawMd.split(/\s+/).length:0;
+  document.getElementById('editorWc').textContent=wc?wc.toLocaleString()+' words':'';
+  document.getElementById('wc-status').textContent=wc?wc.toLocaleString()+' words':'';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function toggleKey(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
+function showToast(m,d=2600){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+function openModal(id){document.getElementById('overlay-'+id).classList.add('show');if(id==='settings'){refreshAuthStatus();refreshConnections();}}
+function closeModal(id){document.getElementById('overlay-'+id).classList.remove('show');}
+function bgClose(e,id){if(e.target===document.getElementById('overlay-'+id))closeModal(id);}
+function setStatus(msg,dot=''){
+  document.getElementById('statusText').textContent=msg;
+  const d=document.getElementById('statusDot');
+  d.className='sb-dot'+(dot?' '+dot:'');
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+async function loadUser(){
+  try{
+    const r=await fetch('/auth/me');const d=await r.json();
+    if(d.authenticated){
+      currentUser=d;
+      document.getElementById('userArea').innerHTML=`
+        <div class="user-chip" onclick="openModal('settings')">
+          <img class="user-avatar" src="${d.avatar}" onerror="this.src=''" alt=""/>
+          <span class="user-name">${d.name.split(' ')[0]}</span>
+        </div>`;
+      await loadSavedKeys();
+    }
+  }catch(e){}
+  // Auth state just resolved — repaint anything that rendered a guess before we knew it
+  renderHomeHistory();
+}
+function refreshAuthStatus(){
+  const el=document.getElementById('authStatus');
+  const syncNote=document.getElementById('keySyncNote');
+  const guestBanner=document.getElementById('pubConnGuestBanner');
+  if(currentUser){
+    el.innerHTML=`<img src="${currentUser.avatar}" style="width:26px;height:26px;border-radius:50%;object-fit:cover"/> <strong>${currentUser.name}</strong> <span style="color:var(--t3)">${currentUser.email}</span> <button onclick="signOut()" style="margin-left:auto;background:none;border:1px solid var(--b1);border-radius:6px;color:var(--t3);font-size:10px;padding:3px 9px;cursor:pointer">Sign out</button>`;
+    if(syncNote)syncNote.innerHTML='☁️ Synced to your account — auto-filled on every device, never asked again.';
+    if(guestBanner)guestBanner.style.display='none';
+  } else {
+    el.innerHTML=`<span style="color:var(--t3)">Not signed in</span><button onclick="location.href='/auth/google'" style="margin-left:auto;background:var(--blue);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">Sign in</button>`;
+    if(syncNote)syncNote.innerHTML='💾 Saved in this browser only (not synced). <a href="/auth/google" style="color:var(--blue)">Sign in</a> to sync across devices and skip re-entering these.';
+    if(guestBanner)guestBanner.style.display='flex';
+  }
+}
+async function signOut(){await fetch('/auth/logout',{method:'POST'});location.reload();}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────
+function onModelChange(){
+  const [p]=document.getElementById('cfgModel').value.split('|');
+  document.getElementById('geminiKeyField').style.display=p==='gemini'?'':'none';
+  document.getElementById('groqKeyField').style.display  =p==='groq'?'':'none';
+  document.getElementById('nvidiaKeyField').style.display=(p==='groq'||p==='nvidia')?'':'none';
+  document.getElementById('openaiKeyField').style.display=p==='openai'?'':'none';
+  document.getElementById('euronKeyField').style.display =p==='euron'?'':'none';
+  const nvNote=document.getElementById('nvidiaKeyNote');
+  if(nvNote)nvNote.textContent = p==='nvidia'
+    ? 'Selected as your primary model. Falls back to Gemini if this key fails.'
+    : 'Groq → NVIDIA → Gemini — automatic fallback chain if a key is missing or fails.';
+}
+async function saveConfig(){
+  const gk=document.getElementById('geminiKey').value.trim();
+  const qk=document.getElementById('groqKey').value.trim();
+  const ok=document.getElementById('openaiKey').value.trim();
+  const nk=document.getElementById('nvidiaKey').value.trim();
+  const ek=document.getElementById('euronKey').value.trim();
+  const tk=document.getElementById('tavilyKey').value.trim();
+  localStorage.setItem('cai',JSON.stringify({mv:document.getElementById('cfgModel').value,gk,qk,ok,nk,ek,tk}));
+  if(currentUser){
+    const saves=[];
+    if(gk)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'gemini',key:gk})}));
+    if(qk)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'groq',key:qk})}));
+    if(ok)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'openai',key:ok})}));
+    if(nk)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'nvidia',key:nk})}));
+    if(ek)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'euron',key:ek})}));
+    if(tk)saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:'tavily',key:tk})}));
+    await Promise.all(saves);
+  }
+  const m=document.getElementById('saveMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',2000);
+}
+async function loadSavedKeys(){
+  const c=JSON.parse(localStorage.getItem('cai')||'{}');
+  if(c.mv)document.getElementById('cfgModel').value=c.mv;
+  if(c.gk)document.getElementById('geminiKey').value=c.gk;
+  if(c.qk)document.getElementById('groqKey').value=c.qk;
+  if(c.ok)document.getElementById('openaiKey').value=c.ok;
+  if(c.nk)document.getElementById('nvidiaKey').value=c.nk;
+  if(c.ek)document.getElementById('euronKey').value=c.ek;
+  if(c.tk)document.getElementById('tavilyKey').value=c.tk;
+  onModelChange();
+}
+loadSavedKeys();loadUser();showScreen('home');syncHomeCount();refreshConnections();
+
+// ── PIPELINE HELPERS ──────────────────────────────────────────────────
+const PHASES=['research','outline','writing','quality','charts','visuals','seo','done'];
+const PHASE_DEFAULTS={
+  research:'Parallel Tavily search · facts, stats, sources',
+  outline:'Structured JSON plan · H2/H3 sections',
+  writing:'Map-Reduce · all sections written in parallel',
+  quality:'Score sections · rewrite weak ones (max 2×)',
+  charts:'Detect numeric data · auto Mermaid charts',
+  visuals:'Pollinations.ai cover + section images',
+  seo:'Title · meta · tags · slug',
+  done:'Review → refine → publish to any platform',
+};
+function ts(){return new Date().toTimeString().slice(0,8);}
+function addLog(msg,hi=false){
+  const d=document.createElement('div');d.className='ll';
+  d.innerHTML=`<span class="lt">${ts()}</span><span class="lm${hi?' hi':''}">${msg}</span>`;
+  const l=document.getElementById('pipeLog');l.appendChild(d);l.scrollTop=l.scrollHeight;
+}
+function phaseActive(k){
+  const el=document.getElementById('ph-'+k);if(!el)return;
+  el.classList.remove('done');el.classList.add('active');
+  document.getElementById('ps-'+k).textContent='Running…';
+}
+function phaseDone(k,msg=''){
+  const el=document.getElementById('ph-'+k);if(!el)return;
+  el.classList.remove('active');el.classList.add('done');
+  document.getElementById('ps-'+k).textContent='✓ Done';
+  if(msg)document.getElementById('pb-'+k).textContent=msg;
+}
+function resetPipeline(){
+  PHASES.forEach(k=>{
+    const el=document.getElementById('ph-'+k);if(!el)return;
+    el.classList.remove('active','done');
+    document.getElementById('ps-'+k).textContent=k==='done'?'Waiting':'Queued';
+    document.getElementById('pb-'+k).textContent=PHASE_DEFAULTS[k]||'';
+  });
+  document.getElementById('pipeBadge').textContent='Running…';
+  document.getElementById('pipeBadge').className='pipe-badge running';
+  document.getElementById('pipeLog').innerHTML=`<div class="ll"><span class="lt">${ts()}</span><span class="lm">Starting content pipeline…</span></div>`;
+}
+
+// ── GENERATE ──────────────────────────────────────────────────────────
+async function startGeneration(){
+  const topic=document.getElementById('topicInput').value.trim();
+  if(!topic){showToast('Please enter a topic');return;}
+  const style=document.querySelector('.sg-item.on')?.dataset.s||'tutorial';
+  const [provider,model]=document.getElementById('cfgModel').value.split('|');
+  const gk=document.getElementById('geminiKey').value.trim();
+  const qk=document.getElementById('groqKey').value.trim();
+  const ok=document.getElementById('openaiKey').value.trim();
+  const nk=document.getElementById('nvidiaKey').value.trim();
+  const ek=document.getElementById('euronKey').value.trim();
+  const tk=document.getElementById('tavilyKey').value.trim();
+
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('errBox').classList.remove('show');
+  document.getElementById('qualityPanel').classList.remove('show');
+  document.getElementById('seoSidebar').style.display='none';
+  rawMd='';coverUrl='';seoData={};qualityReport={};
+  if(imgChoice==='upload'&&uploadedCoverUrl) coverUrl=uploadedCoverUrl;
+
+  gotoView('pipeline');
+  resetPipeline();
+  setStatus('Pipeline running…','amber');
+  phaseActive('research');
+  setPipelineRunning(true,'Research');
+
+  try{
+    const res=await fetch('/api/content/generate',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({topic,style,provider,model,
+        gemini_api_key:gk||undefined,groq_api_key:qk||undefined,
+        openai_api_key:ok||undefined,nvidia_api_key:nk||undefined,
+        euron_api_key:ek||undefined,tavily_api_key:tk||undefined})
+    });
+    if(!res.ok){let e={detail:'Server error'};try{e=await res.json();}catch{}showErr(e.detail||e.message||'Server error');return;}
+    const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
+    async function read(){
+      const{done,value}=await reader.read();
+      if(done){document.getElementById('genBtn').disabled=false;return;}
+      buf+=dec.decode(value,{stream:true});
+      const parts=buf.split('\n\n');buf=parts.pop();
+      parts.forEach(p=>{
+        const et=(p.match(/^event: (.+)/m)||[])[1]?.trim();
+        const ds=(p.match(/^data: (.+)/m)||[])[1]?.trim();
+        if(!et||!ds)return;
+        let data;try{data=JSON.parse(ds);}catch{return;}
+        handleEvent(et,data,topic);
+      });
+      await read();
+    }
+    await read();
+  }catch(e){showErr(e.message);document.getElementById('genBtn').disabled=false;}
+}
+
+function handleEvent(type,data,topic){
+  if(type==='phase_start'){addLog(data.msg||data.phase);phaseActive(data.phase);setPipelineRunning(true,data.phase||data.msg||'');}
+  if(type==='phase_progress'){
+    addLog(data.msg||'');
+    if(data.needs_rewrite)document.getElementById('pb-quality').textContent='Rewriting: '+data.needs_rewrite.map(h=>h.replace('## ','')).join(', ');
+  }
+  if(type==='phase_done'){
+    phaseDone(data.phase,data.msg);addLog('✓ '+data.msg,true);
+    if(data.quality_report)qualityReport=data.quality_report;
+    if(data.cover_url&&(imgChoice!=='upload'||!uploadedCoverUrl))coverUrl=data.cover_url;
+    if(data.seo)seoData=data.seo;
+  }
+  if(type==='complete'){
+    rawMd=data.markdown||'';
+    if(imgChoice!=='upload'||!uploadedCoverUrl)coverUrl=data.cover_url||coverUrl;
+    seoData=data.seo||seoData;
+    if(data.quality_report)qualityReport=data.quality_report;
+
+    document.getElementById('pipeBadge').textContent='Complete ✓';
+    document.getElementById('pipeBadge').className='pipe-badge done';
+    phaseDone('done');addLog('🎉 Blog complete — loading editor…',true);
+    setStatus('Blog generated — '+rawMd.split(/\s+/).length.toLocaleString()+' words','green');
+    document.getElementById('genBtn').disabled=false;
+    document.getElementById('tab-editor').classList.add('ready');
+    document.getElementById('tab-history').classList.add('ready');
+    setPipelineRunning(false);
+    allHistory=[];  // invalidate so home strip reloads next time
+    showToast('🎉 Blog ready — opening editor',3000);
+    if(!currentUser){
+      setTimeout(()=>showToast('👤 Generated as a guest — sign in to keep this post in your history',4000),3300);
+    }
+    loadEditor(topic);
+  }
+  if(type==='error'){
+    showErr(data.message+(data.details?'\n'+data.details.slice(0,200):''));
+    document.getElementById('genBtn').disabled=false;
+    setStatus('Error — check the pipeline tab','red');
+    setPipelineRunning(false);
+  }
+}
+
+function loadEditor(topic){
+  // Fill the markdown editor
+  document.getElementById('mdEditor').value=rawMd;
+  onEditorInput();
+  // Cover
+  const ca=document.getElementById('coverArea');
+  if(coverUrl){
+    ca.innerHTML=`<img class="cover-img" src="${coverUrl}" alt="cover" onerror="this.style.display='none'" loading="lazy"/>`;
+    ca.style.display='block';
+  } else ca.style.display='none';
+  // SEO sidebar
+  if(seoData.title){
+    document.getElementById('seoSidebar').style.display='block';
+    document.getElementById('ssSeoTitle').textContent=seoData.title||'—';
+    document.getElementById('ssSeoMeta').textContent=seoData.meta_description||'—';
+    document.getElementById('ssSeoSlug').textContent=seoData.slug||'—';
+    document.getElementById('ssSeoRead').textContent=(seoData.reading_time||'—')+' min read';
+    document.getElementById('ssSeoTags').innerHTML=(seoData.tags||[]).map(t=>`<span class="ss-tag">#${t}</span>`).join('');
+    if(qualityReport.overall_score){
+      const sc=qualityReport.overall_score;
+      document.getElementById('ssSeoScore').textContent=sc.toFixed(1);
+      document.getElementById('ssSeoScore').style.color=sc>=4?'var(--blue)':sc>=3?'var(--amber)':'var(--red)';
+    }
+  }
+  // Quality report
+  if(qualityReport.sections?.length) renderQualityReport(qualityReport);
+  // Switch to editor
+  gotoView('editor');
+  switchEditorTab('edit');
+}
+
+// ── RENDER PREVIEW ────────────────────────────────────────────────────
+function renderPreview(){
+  const md=rawMd||document.getElementById('mdEditor').value;
+  const empty=document.getElementById('previewEmpty');
+  const body=document.getElementById('previewBody');
+  if(!md.trim()){empty.style.display='flex';body.style.display='none';return;}
+  empty.style.display='none';body.style.display='block';
+  marked.setOptions({breaks:true,gfm:true});
+  const mermaidBlocks=[];
+  const PH='___MERM___';
+  let proc=md.replace(/```mermaid\n([\s\S]*?)```/g,(_,code)=>{mermaidBlocks.push(code.trim());return `\n\n${PH}${mermaidBlocks.length-1}\n\n`;});
+  let html=marked.parse(proc);
+  mermaidBlocks.forEach((code,i)=>{html=html.replace(`<p>${PH}${i}</p>`,`<div class="mermaid">${code}</div>`);});
+  body.innerHTML=html;
+  document.querySelectorAll('#previewBody pre code').forEach(el=>hljs.highlightElement(el));
+  mermaid.run({nodes:document.querySelectorAll('#previewBody .mermaid')});
+}
+
+// ── QUALITY REPORT ────────────────────────────────────────────────────
+function renderQualityReport(report){
+  if(!report?.sections?.length)return;
+  const score=report.overall_score||0;
+  const color=score>=4?'var(--blue)':score>=3?'var(--amber)':'var(--red)';
+  document.getElementById('qScore').textContent=score.toFixed(1);
+  document.getElementById('qScore').style.color=color;
+  const badge=score>=4?'Excellent ✨':score>=3?'Good 👍':'Needs Work ⚠';
+  const qb=document.getElementById('qBadge');
+  qb.textContent=badge;qb.style.color=color;qb.style.borderColor=color+'55';qb.style.background=color+'10';
+  document.getElementById('qSections').innerHTML=report.sections.map(s=>{
+    const dims=[s.depth,s.clarity,s.evidence,s.human_voice].filter(v=>typeof v==='number');
+    const avg=s.avg||(dims.length?dims.reduce((a,b)=>a+b,0)/dims.length:0);
+    const c=avg>=4?'var(--blue)':avg>=3?'var(--amber)':'var(--red)';
+    return `<div class="qs-row">
+      <div class="qs-top"><span class="qs-name">${(s.heading||'').replace('## ','')}</span><span class="qs-avg" style="color:${c}">${avg.toFixed(1)}/5</span></div>
+      <div class="qs-bar-bg"><div class="qs-bar" style="width:${Math.round(avg/5*100)}%;background:${c}"></div></div>
+      <div class="qs-meta"><span>Depth ${s.depth??'—'}</span><span>Clarity ${s.clarity??'—'}</span><span>Evidence ${s.evidence??'—'}</span><span>Human voice ${s.human_voice??'—'}</span></div>
+      ${s.issue?`<div class="qs-issue">⚠ ${s.issue}</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('qualityPanel').classList.add('show');
+}
+
+// ── HITL REFINE ───────────────────────────────────────────────────────
+async function runRefine(){
+  const feedback=document.getElementById('refineFeedback').value.trim();
+  if(!feedback){showToast('Describe what to change');return;}
+  if(!rawMd){showToast('No blog to refine');return;}
+  const btn=document.getElementById('refineBtn');
+  btn.disabled=true;btn.textContent='⏳ Rewriting…';
+  const [provider,model]=document.getElementById('cfgModel').value.split('|');
+  const gk=document.getElementById('geminiKey').value.trim();
+  const qk=document.getElementById('groqKey').value.trim();
+  const ok=document.getElementById('openaiKey').value.trim();
+  const nk=document.getElementById('nvidiaKey').value.trim();
+  const ek=document.getElementById('euronKey').value.trim();
+  gotoView('pipeline');
+  PHASES.forEach(k=>{const el=document.getElementById('ph-'+k);if(el)el.classList.remove('active','done');});
+  document.getElementById('pipeBadge').textContent='Refining…';
+  document.getElementById('pipeBadge').className='pipe-badge running';
+  document.getElementById('pipeLog').innerHTML=`<div class="ll"><span class="lt">${ts()}</span><span class="lm hi">🔁 Applying feedback: "${feedback.slice(0,60)}"</span></div>`;
+  setStatus('Applying feedback…','amber');
+  try{
+    const res=await fetch('/api/content/refine',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({topic:document.getElementById('topicInput').value.trim(),markdown:rawMd,feedback,provider,model,
+        gemini_api_key:gk||undefined,groq_api_key:qk||undefined,openai_api_key:ok||undefined,
+        nvidia_api_key:nk||undefined,euron_api_key:ek||undefined})});
+    if(!res.ok){let e={detail:'Refine failed'};try{e=await res.json();}catch{}throw new Error(e.detail||e.message||'Refine failed');}
+    const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
+    async function read(){
+      const{done,value}=await reader.read();if(done){btn.disabled=false;btn.textContent='🔁 Apply Feedback';return;}
+      buf+=dec.decode(value,{stream:true});
+      const parts=buf.split('\n\n');buf=parts.pop();
+      parts.forEach(p=>{
+        const et=(p.match(/^event: (.+)/m)||[])[1]?.trim();
+        const ds=(p.match(/^data: (.+)/m)||[])[1]?.trim();
+        if(!et||!ds)return;let data;try{data=JSON.parse(ds);}catch{return;}
+        if(et==='phase_start'){phaseActive(data.phase);addLog(data.msg||data.phase);}
+        if(et==='phase_done'){phaseDone(data.phase,data.msg);addLog('✓ '+data.msg,true);if(data.quality_report)qualityReport=data.quality_report;}
+        if(et==='complete'){
+          if(data.markdown){rawMd=data.markdown;document.getElementById('mdEditor').value=rawMd;onEditorInput();}
+          if(data.quality_report){qualityReport=data.quality_report;renderQualityReport(qualityReport);}
+          document.getElementById('pipeBadge').textContent='Refined ✓';
+          document.getElementById('pipeBadge').className='pipe-badge done';
+          phaseDone('done');addLog('✅ Refined — check editor',true);
+          setStatus('Blog refined','green');
+          showToast('✅ Blog updated',2500);
+          document.getElementById('tab-editor').classList.add('ready');
+          document.getElementById('refineFeedback').value='';
+          btn.disabled=false;btn.textContent='🔁 Apply Feedback';
+          gotoView('editor');
+        }
+        if(et==='error'){addLog('⚠ '+data.message);btn.disabled=false;btn.textContent='🔁 Apply Feedback';showToast('⚠ '+data.message,4000);}
+      });
+      await read();
+    }
+    await read();
+  }catch(e){showToast('⚠ '+e.message,4000);btn.disabled=false;btn.textContent='🔁 Apply Feedback';}
+}
+
+// ── PUBLISHING CONNECTIONS (set once, stored in DB) ───────────────────
+let connectedPlatforms={devto:false,hashnode:false,medium:false,linkedin:false};
+const PLAT_NAMES={devto:'dev.to',hashnode:'Hashnode',linkedin:'LinkedIn',medium:'Medium',twitter:'X (Twitter)'};
+async function refreshConnections(){
+  try{
+    const r=await fetch('/api/keys/status');
+    if(r.ok){const d=await r.json();if(d.connected)connectedPlatforms=d.connected;}
+  }catch(e){}
+  ['devto','hashnode','medium','linkedin','twitter'].forEach(p=>{
+    const b=document.getElementById('conn-'+p);if(!b)return;
+    const on=!!connectedPlatforms[p];
+    b.className='conn-badge '+(on?'yes':'no');
+    b.textContent=on?'✓ Connected':'Not connected';
+  });
+  // Pre-fill fields with saved values
+  try{
+    const r2=await fetch('/api/keys/load');
+    if(r2.ok){
+      const keys=await r2.json();
+      const fm={devto:'connDevto',hashnode:'connHashnode',medium:'connMedium',
+                linkedin_token:'connLinkedinToken',linkedin_urn:'connLinkedinUrn',
+                twitter_api_key:'connTwApiKey',twitter_api_secret:'connTwApiSecret',
+                twitter_access_token:'connTwAccessToken',twitter_access_secret:'connTwAccessSecret'};
+      for(const[k,id]of Object.entries(fm)){
+        const el=document.getElementById(id);
+        if(el&&keys[k]){el.value=keys[k];el.dataset.prefilled=keys[k];}
+      }
+    }
+  }catch(e){}
+}
+async function saveConnections(){
+  if(!currentUser){showToast('Sign in with Google to save connections');return;}
+  const map={
+    devto:                 document.getElementById('connDevto'),
+    hashnode:              document.getElementById('connHashnode'),
+    medium:                document.getElementById('connMedium'),
+    linkedin_token:        document.getElementById('connLinkedinToken'),
+    linkedin_urn:          document.getElementById('connLinkedinUrn'),
+    twitter_api_key:       document.getElementById('connTwApiKey'),
+    twitter_api_secret:    document.getElementById('connTwApiSecret'),
+    twitter_access_token:  document.getElementById('connTwAccessToken'),
+    twitter_access_secret: document.getElementById('connTwAccessSecret'),
+  };
+  const saves=[];
+  for(const [platform,el] of Object.entries(map)){
+    const key=el.value.trim();
+    // Only save if value changed from what was pre-filled (or is brand new)
+    if(key&&key!==el.dataset.prefilled)
+      saves.push(fetch('/api/keys/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform,key})}));
+  }
+  if(!saves.length){showToast('No changes to save');return;}
+  await Promise.all(saves);
+  const m=document.getElementById('connSaveMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',2200);
+  await refreshConnections();
+}
+
+// ── PUBLISH ───────────────────────────────────────────────────────────
+let selectedPlat='devto';
+const PLAT_HINTS={
+  devto:    'dev.to → Settings → Extensions → API Key',
+  hashnode: 'Hashnode → Account Settings → Developer → Personal Access Token · optionally append |publicationId',
+  medium:   'Medium → Settings → Security and apps → Integration tokens → Generate token',
+  twitter:  'developer.x.com → your app → Keys and tokens. Paste all 4 joined with | : API_KEY|API_SECRET|ACCESS_TOKEN|ACCESS_TOKEN_SECRET',
+};
+async function openPublish(){
+  if(!rawMd&&!document.getElementById('mdEditor').value.trim()){showToast('Nothing to publish');return;}
+  document.getElementById('pubStatus').style.display='none';
+  document.getElementById('pubBtn').textContent='🚀 Publish Now';
+  await refreshConnections();
+  openModal('publish');
+  applyPubConnState();
+}
+function selectPlat(p){
+  selectedPlat=p;
+  document.querySelectorAll('.plat-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('plat-'+p).classList.add('selected');
+  document.getElementById('platNameLabel').textContent=PLAT_NAMES[p]||p;
+  document.getElementById('platNameConnected').textContent=PLAT_NAMES[p]||p;
+  document.getElementById('keyHint').textContent=PLAT_HINTS[p]||'';
+  applyPubConnState();
+}
+const PLAT_LOGIN_REQUIRED=['linkedin','twitter'];   // mirrors backend _LOGIN_REQUIRED_PLATFORMS
+const LOGIN_REQ_COPY={
+  linkedin:'LinkedIn credentials (Access Token + Author URN) are only ever saved to your account — there is no guest option for LinkedIn.',
+  twitter: 'X credentials (4 keys/tokens) are only ever saved to your account — there is no guest option for X.',
+};
+function applyPubConnState(){
+  const connected=!!connectedPlatforms[selectedPlat];
+  const needsLogin=PLAT_LOGIN_REQUIRED.includes(selectedPlat);
+  const conn      = document.getElementById('pubConnected');
+  const keyArea   = document.getElementById('pubKeyArea');
+  const loginReq  = document.getElementById('pubLoginRequired');
+  const liSetup   = document.getElementById('pubLinkedinSetup');
+  const twSetup   = document.getElementById('pubTwitterSetup');
+  const liPreview = document.getElementById('liPreview');
+  const liSpinner = document.getElementById('liPreviewSpinner');
+  const modal     = document.getElementById('publishModal');
+  const btn       = document.getElementById('pubBtn');
+
+  // reset all
+  conn.style.display='none';
+  keyArea.style.display='none';
+  loginReq.style.display='none';
+  liSetup.style.display='none';
+  twSetup.style.display='none';
+  liPreview.style.display='none';
+  liSpinner.style.display='none';
+  document.getElementById('twPreview').style.display='none';
+  document.getElementById('twPreviewSpinner').style.display='none';
+  document.getElementById('pubTwitterNote').style.display='none';
+  document.getElementById('pubStatus').style.display='none';
+  modal.style.width='500px';
+
+  if(selectedPlat==='twitter'){
+    document.getElementById('pubTwitterNote').style.display='block';
+    modal.style.width='660px';
+    fetchTwitterPreview();   // preview works with or without credentials — free to try
+  }
+
+  // Guest trying a platform that structurally requires a saved account
+  if(!currentUser && needsLogin && !connected){
+    document.getElementById('loginReqTitle').textContent='Sign in to publish to '+PLAT_NAMES[selectedPlat];
+    document.getElementById('loginReqBody').textContent=LOGIN_REQ_COPY[selectedPlat]||'';
+    loginReq.style.display='block';
+    btn.disabled=true;
+    return;
+  }
+
+  if(connected){
+    conn.style.display='flex';
+    document.getElementById('platNameConnected').textContent='— using saved credentials for '+PLAT_NAMES[selectedPlat];
+    btn.disabled=false;
+    if(selectedPlat==='linkedin'){
+      modal.style.width='660px';
+      fetchLinkedinPreview();
+    }
+  } else if(selectedPlat==='linkedin'){
+    liSetup.style.display='block';
+    btn.disabled=true;
+  } else if(selectedPlat==='twitter'){
+    twSetup.style.display='block';
+    btn.disabled=true;
+  } else {
+    // devto / hashnode / medium — guests can still publish with a one-time key
+    keyArea.style.display='block';
+    btn.disabled=false;
+    document.getElementById('pubApiKey').value='';
+    document.getElementById('pubKeyPersistNote').innerHTML = currentUser
+      ? '💾 Saved once — you won\'t be asked again.'
+      : '👤 Publishing as a guest — this key is used once and NOT saved. <a href="/auth/google" style="color:var(--blue)">Sign in</a> to save it permanently.';
+  }
+}
+
+// ── X THREAD PREVIEW + COPY ───────────────────────────────────────────
+let twThreadTweets=[];
+async function fetchTwitterPreview(){
+  const md=rawMd||document.getElementById('mdEditor').value;
+  if(!md.trim()) return;
+  const spinner=document.getElementById('twPreviewSpinner');
+  const preview=document.getElementById('twPreview');
+  spinner.style.display='block';
+  preview.style.display='none';
+  try{
+    const r=await fetch('/api/content/twitter-preview',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        markdown:md,
+        title:seoData.title||document.getElementById('topicInput').value.trim(),
+        tags:seoData.tags||[]
+      })
+    });
+    if(!r.ok) throw new Error('Preview failed');
+    const d=await r.json();
+    twThreadTweets=d.tweets||[];
+    const cards=document.getElementById('twCards');
+    cards.innerHTML=twThreadTweets.map((t,i)=>{
+      const n=t.length;
+      const col=n<=275?'var(--t3)':'var(--red)';
+      return `<div style="background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:11px 13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:10px;font-weight:800;color:var(--cyan)">TWEET ${i+1}/${twThreadTweets.length}${i===0?' · 🖼 cover image here':''}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;font-weight:700;color:${col}">${n}/280</span>
+            <button class="pub-link" onclick="copyTweet(${i},this)">📋 Copy</button>
+          </div>
+        </div>
+        <div style="font-size:12.5px;color:var(--t1);line-height:1.6;white-space:pre-wrap">${t.replace(/</g,'&lt;')}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('twCount').textContent=twThreadTweets.length+' tweets';
+    spinner.style.display='none';
+    preview.style.display='flex';
+    preview.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){
+    spinner.style.display='none';
+    setPubStatus('⚠ Thread preview unavailable — you can still publish via API.','error');
+  }
+}
+function copyTweet(i,btn){
+  navigator.clipboard.writeText(twThreadTweets[i]||'').then(()=>{
+    if(btn){btn.textContent='✓ Copied';setTimeout(()=>btn.textContent='📋 Copy',1500);}
+    showToast('✓ Tweet '+(i+1)+' copied — paste it on X');
+  });
+}
+function copyThread(){
+  navigator.clipboard.writeText(twThreadTweets.join('\n\n──────────\n\n')).then(()=>
+    showToast('✓ Full thread copied ('+twThreadTweets.length+' tweets)'));
+}
+
+async function fetchLinkedinPreview(){
+  const md=rawMd||document.getElementById('mdEditor').value;
+  if(!md.trim()) return;
+  const spinner=document.getElementById('liPreviewSpinner');
+  const preview=document.getElementById('liPreview');
+  const btn=document.getElementById('pubBtn');
+
+  spinner.style.display='block';
+  preview.style.display='none';
+  btn.disabled=true;
+
+  try{
+    const r=await fetch('/api/content/linkedin-preview',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        markdown:md,
+        title:seoData.title||document.getElementById('topicInput').value.trim(),
+        tags:seoData.tags||[],
+        cover_image:coverUrl||undefined
+      })
+    });
+    if(!r.ok) throw new Error('Preview failed');
+    const d=await r.json();
+
+    // post text
+    document.getElementById('liMockBody').textContent=d.text;
+
+    // char count badge
+    const chars=d.char_count||d.text.length;
+    const cc=document.getElementById('liCharCount');
+    cc.textContent=chars+' / 3000 chars';
+    cc.style.color=chars<=3000?'#22c55e':'var(--amber)';
+    cc.style.fontWeight='700';
+
+    // cover image
+    const img=document.getElementById('liMockCover');
+    const ci=coverUrl||d.cover_image||'';
+    if(ci){ img.src=ci; img.style.display='block'; }
+    else   { img.style.display='none'; }
+
+    // avatar + name from logged-in user
+    if(currentUser){
+      const av=document.getElementById('liAvatarArea');
+      if(currentUser.avatar){
+        av.innerHTML=`<img src="${currentUser.avatar}" style="width:44px;height:44px;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='A'" alt=""/>`;
+      }
+      document.getElementById('liMockName').textContent=currentUser.name||'You';
+    }
+
+    spinner.style.display='none';
+    preview.style.display='flex';
+    btn.disabled=false;
+
+    // scroll preview into view inside the modal
+    preview.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  }catch(e){
+    spinner.style.display='none';
+    const st=document.getElementById('pubStatus');
+    st.style.cssText='display:block;padding:10px 12px;border-radius:7px;font-size:12px;font-weight:600;color:var(--amber);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);margin-bottom:10px';
+    st.textContent='⚠ Preview unavailable — you can still publish.';
+    btn.disabled=false;
+  }
+}
+selectPlat('devto');
+function setPubStatus(msg,type){
+  const el=document.getElementById('pubStatus');
+  const colors={info:'var(--blue)',success:'#22c55e',error:'var(--red)'};
+  el.style.cssText=`display:block;padding:10px 12px;border-radius:7px;font-size:12px;font-weight:600;color:${colors[type]||colors.info};background:${colors[type]||colors.info}10;border:1px solid ${colors[type]||colors.info}33;margin-bottom:10px`;
+  el.textContent=msg;
+}
+async function doPublish(){
+  const connected=!!connectedPlatforms[selectedPlat];
+  const keyAreaVisible=document.getElementById('pubKeyArea').style.display!=='none';
+  const key=keyAreaVisible?document.getElementById('pubApiKey').value.trim():'';
+  if(!currentUser && PLAT_LOGIN_REQUIRED.includes(selectedPlat) && !connected){
+    setPubStatus('Sign in with Google to publish to '+PLAT_NAMES[selectedPlat]+'.','error');return;
+  }
+  if(PLAT_LOGIN_REQUIRED.includes(selectedPlat)&&!connected){
+    setPubStatus('Connect '+PLAT_NAMES[selectedPlat]+' in Settings first.','error');return;
+  }
+  if(!connected&&!key){
+    setPubStatus(`Enter your ${PLAT_NAMES[selectedPlat]} API key first.`,'error');return;
+  }
+  const md=rawMd||document.getElementById('mdEditor').value;
+  const btn=document.getElementById('pubBtn');
+  btn.disabled=true;btn.textContent='⏳ Publishing…';
+  setPubStatus('Submitting…','info');
+  try{
+    const r=await fetch('/api/content/publish',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({platform:selectedPlat,markdown:md,title:seoData.title||document.getElementById('topicInput').value.trim(),
+        tags:seoData.tags||[],cover_image:coverUrl||undefined,api_key:key||undefined,
+        topic:document.getElementById('topicInput').value.trim()})});
+    if(!r.ok){let e={detail:'Publish failed'};try{e=await r.json();}catch{}throw new Error(e.detail||e.message||'Publish failed');}
+    const d=await r.json();
+    let okMsg='🎉 Published! '+d.url;
+    if(d.tweets) okMsg='🧵 Thread posted — '+d.tweets+' tweet'+(d.tweets>1?'s':'')+'! '+d.url;
+    if(d.warning) okMsg+=' ⚠ '+d.warning;
+    if(!d.saved_to_history) okMsg+='  ·  👤 Guest post — sign in to keep this in your history.';
+    setPubStatus(okMsg,'success');
+    btn.textContent='✅ Published!';
+    showToast(d.tweets?('🧵 Thread posted ('+d.tweets+' tweets)!'):'🎉 Published successfully!',4000);
+    // The credential is now saved — reflect "connected" so we never ask again
+    await refreshConnections();applyPubConnState();
+    setTimeout(()=>{btn.disabled=false;btn.textContent='🚀 Publish Now';},5000);
+  }catch(e){setPubStatus('⚠ '+e.message,'error');btn.disabled=false;btn.textContent='🚀 Publish Now';}
+}
+
+// ── EDITOR ACTIONS ────────────────────────────────────────────────────
+function copyMd(){navigator.clipboard.writeText(rawMd||document.getElementById('mdEditor').value).then(()=>showToast('✓ Markdown copied'));}
+function downloadMd(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rawMd||document.getElementById('mdEditor').value],{type:'text/markdown'}));a.download=(seoData.slug||'blog-post')+'.md';a.click();}
+function newContent(){
+  rawMd='';coverUrl='';seoData={};qualityReport={};
+  document.getElementById('mdEditor').value='';
+  document.getElementById('previewBody').innerHTML='';
+  document.getElementById('previewBody').style.display='none';
+  document.getElementById('previewEmpty').style.display='flex';
+  document.getElementById('coverArea').style.display='none';
+  document.getElementById('errBox').classList.remove('show');
+  document.getElementById('qualityPanel').classList.remove('show');
+  document.getElementById('seoSidebar').style.display='none';
+  document.getElementById('refineFeedback').value='';
+  document.getElementById('editorWc').textContent='';
+  document.getElementById('wc-status').textContent='';
+  uploadedCoverUrl='';imgChoice='ai';
+  document.getElementById('imgChoiceAI').classList.add('on');
+  document.getElementById('imgChoiceUpload').classList.remove('on');
+  document.getElementById('uploadZoneWrap').style.display='none';
+  document.getElementById('imgPreviewRow').innerHTML='';
+  document.getElementById('uploadStatus').textContent='';
+  setStatus('Ready — enter a topic and generate','');
+  gotoView('editor');switchEditorTab('edit');
+}
+function showErr(msg){
+  document.getElementById('errBox').textContent='⚠ '+msg;
+  document.getElementById('errBox').classList.add('show');
+  gotoView('editor');
+}
+
+// ── IMAGE UPLOAD ──────────────────────────────────────────────────────
+function setImgChoice(c){
+  imgChoice=c;
+  document.getElementById('imgChoiceAI').classList.toggle('on',c==='ai');
+  document.getElementById('imgChoiceUpload').classList.toggle('on',c==='upload');
+  document.getElementById('uploadZoneWrap').style.display=c==='upload'?'block':'none';
+  if(c==='ai'){uploadedCoverUrl='';document.getElementById('imgPreviewRow').innerHTML='';document.getElementById('uploadStatus').textContent='';}
+}
+async function uploadFile(file){
+  const st=document.getElementById('uploadStatus');
+  const hst=document.getElementById('homeUploadStatus');
+  if(file.size>8*1024*1024){showToast('Max 8 MB');return;}
+  st.textContent='⏳ Uploading…';st.style.color='var(--t3)';
+  if(hst)hst.textContent='⏳ Uploading…';
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const r=await fetch('/api/upload/image',{method:'POST',body:fd});
+    if(!r.ok){let e={detail:'Upload failed'};try{e=await r.json();}catch{}throw new Error(e.detail||e.message||'Upload failed');}
+    const d=await r.json();
+    uploadedCoverUrl=d.url;
+    st.textContent='✓ Uploaded';st.style.color='var(--blue)';
+    if(hst)hst.textContent='✓ Uploaded — '+(file.name||'image');
+    document.getElementById('imgPreviewRow').innerHTML=`<img class="upload-thumb" src="${d.url}" alt="cover"/>`;
+    showToast('✓ Image uploaded');
+  }catch(e){st.textContent='⚠ '+e.message;st.style.color='var(--red)';if(hst)hst.textContent='⚠ '+e.message;}
+}
+function handleFileSelect(e){const f=e.target.files[0];if(f)uploadFile(f);}
+function handleDrop(e){e.preventDefault();document.getElementById('imgDropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)uploadFile(f);}
+
+// ── HISTORY ───────────────────────────────────────────────────────────
+async function loadHistory(){
+  const grid=document.getElementById('histGrid');
+  if(!currentUser){
+    allHistory=[];
+    grid.innerHTML=`<div class="hist-empty">
+      <div class="empty-ico" style="font-size:40px">🔒</div>
+      <p><strong>Sign in to save &amp; view your history</strong><br>Posts you generate as a guest aren't stored — sign in once and every draft &amp; publish is kept here automatically.</p>
+      <button onclick="location.href='/auth/google'" style="margin-top:10px;background:var(--blue);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px 18px;cursor:pointer">Sign in with Google</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML=`<div class="hist-empty"><div style="font-size:28px;opacity:.3">⏳</div><p>Loading…</p></div>`;
+  try{const r=await fetch('/api/history');allHistory=r.ok?await r.json():[];}catch{allHistory=[];}
+  renderHistory();
+}
+function setHistFilter(f,el){
+  histFilter=f;
+  document.querySelectorAll('.hf').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');renderHistory();
+}
+function filterHistory(){renderHistory();}
+function renderHistory(){
+  const q=document.getElementById('histSearch').value.toLowerCase();
+  let items=allHistory;
+  const platLabels={draft:'Draft',devto:'dev.to',hashnode:'Hashnode',linkedin:'LinkedIn',medium:'Medium'};
+  const _getPlats=p=>Array.isArray(p.platforms)&&p.platforms.length?p.platforms:[p.platform||'draft'];
+  if(histFilter!=='all')items=items.filter(p=>_getPlats(p).includes(histFilter));
+  if(q)items=items.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.topic||'').toLowerCase().includes(q));
+  const grid=document.getElementById('histGrid');
+  if(!items.length){
+    grid.innerHTML=`<div class="hist-empty"><div style="font-size:36px;opacity:.15">🕑</div><p>${allHistory.length?'No results match.':'Generate content to see history here.'}</p></div>`;
+    return;
+  }
+  grid.innerHTML=items.map(p=>{
+    const date=new Date(p.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const wc=p.word_count?p.word_count.toLocaleString()+' words · ':'';
+    const plats=_getPlats(p);
+    const platBadges=plats.map(pl=>{
+      const url=(p.urls&&p.urls[pl])||p.url||'';
+      const label=platLabels[pl]||pl;
+      return url&&pl!=='draft'
+        ? `<a href="${url}" target="_blank" onclick="event.stopPropagation()" class="hc-plat ${pl}">${label} ↗</a>`
+        : `<span class="hc-plat ${pl}">${label}</span>`;
+    }).join('');
+    return `<div class="hist-card" onclick="loadDraft(${p.id})">
+      ${p.cover_url?`<img class="hist-cover" src="${p.cover_url}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=hist-cover-ph>📝</div>'" alt=""/>` :'<div class="hist-cover-ph">📝</div>'}
+      <button class="hc-del" onclick="event.stopPropagation();deletePost(${p.id})" title="Delete">✕</button>
+      <div class="hc-body">
+        <div class="hc-title">${p.title||p.topic||'Untitled'}</div>
+        <div class="hc-meta">
+          <span style="display:flex;gap:4px;flex-wrap:wrap">${platBadges}</span>
+          <span>${wc}${date}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function loadDraft(id){
+  const p=allHistory.find(x=>x.id===id);
+  if(!p?.markdown){showToast('No saved markdown for this entry');return;}
+  rawMd=p.markdown;
+  coverUrl=p.cover_url||'';
+  seoData={tags:p.tags||[],title:p.title,reading_time:Math.max(1,Math.round((p.word_count||0)/200))};
+  document.getElementById('topicInput').value=p.topic||p.title||'';
+  loadEditor(p.topic||p.title||'');
+  showToast('✓ Loaded from history');
+}
+async function deletePost(id){
+  if(!confirm('Delete this entry?'))return;
+  const r=await fetch('/api/history/'+id,{method:'DELETE'});
+  if(r.ok){allHistory=allHistory.filter(x=>x.id!==id);renderHistory();showToast('Deleted');}
+  else showToast('Could not delete — sign in first');
+}
+
+// ── VOICE ─────────────────────────────────────────────────────────────
+let recognition=null,isListening=false,voiceBtn=null,voiceTarget='topicInput';
+function toggleVoice(targetId,btn){
+  voiceTarget=targetId||'topicInput';
+  voiceBtn=btn||document.getElementById('micBtn');
+  if(isListening){stopVoice();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('Voice not supported — use Chrome/Edge');return;}
+  recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onstart=()=>{isListening=true;voiceBtn.classList.add('listening');voiceBtn.textContent='⏹';};
+  recognition.onresult=(e)=>{let f='';for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)f+=e.results[i][0].transcript;if(f){const ta=document.getElementById(voiceTarget);ta.value=(ta.value.trim()?ta.value.trim()+' ':'')+f.trim();voiceTarget==='homeTopicInput'?syncHomeCount():countChars();}};
+  recognition.onerror=(e)=>{showToast('🎙 '+(e.error==='not-allowed'?'Mic denied':'Error: '+e.error));stopVoice();};
+  recognition.onend=()=>{if(isListening)stopVoice();};
+  try{recognition.start();}catch(e){showToast('Could not start mic');}
+}
+function stopVoice(){
+  isListening=false;if(recognition){try{recognition.stop();}catch(e){}recognition=null;}
+  (voiceBtn||document.getElementById('micBtn'))?.classList.remove('listening');
+  if(voiceBtn)voiceBtn.textContent='🎙';
+}
+</script>
+</body>
+</html>
